@@ -1,0 +1,100 @@
+﻿@model IEnumerable<GestionRH.Models.Conge>
+@using Microsoft.AspNetCore.Identity
+@using GestionRH.Models
+@inject UserManager<Utilisateur> UserManager
+
+@{
+    ViewData["Title"] = "Gestion des Congés";
+    var currentUser = await UserManager.GetUserAsync(User);
+    var userRole = currentUser?.Role;
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>🗓️ @ViewData["Title"]</h1>
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="bi bi-plus-lg"></i> Nouvelle Demande
+        </a>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body p-0">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Employé</th>
+                        <th>Type</th>
+                        <th>Dates</th>
+                        <th>Durée</th>
+                        <th>Statut</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!Model.Any())
+                    {
+                        <tr>
+                            <td colspan="6" class="text-center py-4 text-muted">Aucune demande trouvée.</td>
+                        </tr>
+                    }
+                    else
+                    {
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td class="fw-bold">
+                                    @if (item.Employe != null)
+                                    {
+                                        @item.Employe.NomComplet
+                                    }
+                                    else
+                                    {
+
+                                        <span class="text-danger">Inconnu</span>
+                                    }
+                                </td>
+                                <td><span class="badge bg-light text-dark border">@item.Type</span></td>
+                                <td>
+                                    @item.DateDebut.ToShortDateString() <i class="bi bi-arrow-right-short"></i> @item.DateFin.ToShortDateString()
+                                </td>
+                                <td>@((item.DateFin - item.DateDebut).Days + 1) j</td>
+                                <td>
+                                    @if (item.Statut == "EnAttente")
+                                    {
+                                        <span class="badge bg-warning text-dark">En attente ⏳</span>
+                                    }
+                                    else if (item.Statut == "ValideManager")
+                                    {
+
+                                        <span class="badge bg-info text-dark">Validé Manager 👤</span>
+                                    }
+                                    else if (item.Statut == "Valide")
+                                    {
+
+                                        <span class="badge bg-success">Validé RH ✅</span>
+                                    }
+                                    else if (item.Statut == "Refuse")
+                                    {
+
+                                        <span class="badge bg-danger">Refusé ❌</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if ((userRole == "AdministrateurRH" && (item.Statut == "EnAttente" || item.Statut == "ValideManager"))
+                                                                || (userRole == "Responsable" && item.Statut == "EnAttente"))
+                                    {
+                                        <form asp-action="Traiter" method="post" class="d-inline">
+                                            <input type="hidden" name="id" value="@item.IdConge" />
+                                            <button type="submit" name="decision" value="Valider" class="btn btn-sm btn-success" title="Valider">✓</button>
+                                            <button type="submit" name="decision" value="Refuser" class="btn btn-sm btn-danger" title="Refuser">✗</button>
+                                        </form>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

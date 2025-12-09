@@ -1,0 +1,52 @@
+﻿@model GestionRH.Models.Employe
+
+@{
+    ViewData["Title"] = "Ajouter un employé";
+}
+
+<div class="container mt-4">
+    <h1>Ajouter un nouvel employé</h1>
+    <hr />
+    <div class="row">
+        <div class="col-md-6">
+            <form asp-action="Create">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <div class="form-group mb-3">
+                    <label asp-for="Nom" class="control-label"></label>
+                    <input asp-for="Nom" class="form-control" />
+                    <span asp-validation-for="Nom" class="text-danger"></span>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label asp-for="Prenom" class="control-label"></label>
+                    <input asp-for="Prenom" class="form-control" />
+                    <span asp-validation-for="Prenom" class="text-danger"></span>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label asp-for="Email" class="control-label"></label>
+                    <input asp-for="Email" class="form-control" type="email" />
+                    <span asp-validation-for="Email" class="text-danger"></span>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label asp-for="Poste" class="control-label"></label>
+                    <input asp-for="Poste" class="form-control" />
+                    <span asp-validation-for="Poste" class="text-danger"></span>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label asp-for="Salaire" class="control-label"></label>
+                    <input asp-for="Salaire" class="form-control" type="number" step="0.01" />
+                    <span asp-validation-for="Salaire" class="text-danger"></span>
+                </div>
+
+                <div class="form-group mt-4">
+                    <input type="submit" value="Créer" class="btn btn-primary" />
+                    <a asp-action="Index" class="btn btn-secondary">Retour à la liste</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
