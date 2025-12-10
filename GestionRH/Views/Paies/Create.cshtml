@@ -1,0 +1,71 @@
+﻿@{
+    ViewData["Title"] = "Générer un bulletin de paie";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0">🧮 Calcul de Paie</h4>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Create">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                        <div class="form-group mb-3">
+                            <label class="control-label fw-bold">Sélectionner l'employé</label>
+                            <select name="EmployeId" class="form-control" asp-items="ViewBag.EmployeId"></select>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 form-group mb-3">
+                                <label class="control-label fw-bold">Mois</label>
+                                <select name="Mois" class="form-select">
+                                    <option>Janvier</option>
+                                    <option>Février</option>
+                                    <option>Mars</option>
+                                    <option>Avril</option>
+                                    <option>Mai</option>
+                                    <option>Juin</option>
+                                    <option>Juillet</option>
+                                    <option>Août</option>
+                                    <option>Septembre</option>
+                                    <option>Octobre</option>
+                                    <option>Novembre</option>
+                                    <option selected>Décembre</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 form-group mb-3">
+                                <label class="control-label fw-bold">Année</label>
+                                <input type="number" name="Annee" class="form-control" value="2025" />
+                            </div>
+                        </div>
+
+                        <hr />
+                        <h5 class="text-muted">Variables du mois</h5>
+
+                        <div class="row">
+                            <div class="col-md-6 form-group mb-3">
+                                <label class="control-label text-success">Primes / Bonus (+)</label>
+                                <input type="number" name="Primes" class="form-control" value="0" step="0.01" />
+                                <small class="text-muted">Heures sup, prime rendement...</small>
+                            </div>
+
+                            <div class="col-md-6 form-group mb-3">
+                                <label class="control-label text-danger">Retenues / Absences (-)</label>
+                                <input type="number" name="Retenues" class="form-control" value="0" step="0.01" />
+                                <small class="text-muted">Retards, acomptes...</small>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2 mt-4">
+                            <button type="submit" class="btn btn-success btn-lg">Valider et Calculer</button>
+                            <a asp-action="Index" class="btn btn-light">Annuler</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

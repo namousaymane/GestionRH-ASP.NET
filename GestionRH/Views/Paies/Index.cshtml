@@ -1,0 +1,63 @@
+﻿@model IEnumerable<GestionRH.Models.Paie>
+@using Microsoft.AspNetCore.Identity
+@using GestionRH.Models
+@inject UserManager<Utilisateur> UserManager
+
+@{
+    ViewData["Title"] = "Bulletins de Paie";
+    var user = await UserManager.GetUserAsync(User);
+    var isAdmin = user?.Role == "AdministrateurRH";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>💰 Bulletins de Paie</h1>
+
+        @if (isAdmin)
+        {
+            <a asp-action="Create" class="btn btn-success">
+                <i class="bi bi-calculator"></i> Générer une paie
+            </a>
+        }
+    </div>
+
+    <table class="table table-striped table-hover shadow-sm">
+        <thead class="table-dark">
+            <tr>
+                <th>Employé</th>
+                <th>Mois / Année</th>
+                <th>Date d'émission</th>
+                <th class="text-end">Montant Net</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (!Model.Any())
+            {
+                <tr>
+                    <td colspan="5" class="text-center text-muted">Aucun bulletin de paie disponible.</td>
+                </tr>
+            }
+            else
+            {
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>
+                            <strong>@item.Employe?.NomComplet</strong><br />
+                            <small class="text-muted">@item.Employe?.Poste</small>
+                        </td>
+                        <td>@item.Mois</td>
+                        <td>@item.DateEmission.ToShortDateString()</td>
+                        <td class="text-end fw-bold">@item.Montant.ToString("C")</td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-danger" disabled>
+                                <i class="bi bi-file-pdf"></i> PDF (Bientôt)
+                            </button>
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>
