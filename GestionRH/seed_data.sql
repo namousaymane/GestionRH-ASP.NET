@@ -4,9 +4,9 @@
 
 USE GestionRH_DB;
 
--- ============================================
+-- 
 -- 1. INSERTION DANS AspNetUsers
--- ============================================
+-- 
 -- Note: Les utilisateurs utilisent Identity, donc il faut générer des IDs et des hash de mot de passe
 -- Pour simplifier, on utilise des IDs simples et des hash basiques
 -- En production, utilisez UserManager pour créer les utilisateurs avec des mots de passe hashés correctement
