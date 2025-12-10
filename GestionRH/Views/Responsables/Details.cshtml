@@ -1,0 +1,39 @@
+@model GestionRH.Models.Responsable
+
+@{
+    ViewData["Title"] = "Détails du Responsable";
+}
+
+<div class="container mt-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">Détails du Responsable</h4>
+        </div>
+        <div class="card-body">
+            <dl class="row">
+                <dt class="col-sm-3">Nom complet</dt>
+                <dd class="col-sm-9"><strong>@Model.NomComplet</strong></dd>
+
+                <dt class="col-sm-3">Email</dt>
+                <dd class="col-sm-9">@Model.Email</dd>
+
+                <dt class="col-sm-3">Rôle</dt>
+                <dd class="col-sm-9">
+                    <span class="badge bg-info">@Model.Role</span>
+                </dd>
+
+                <dt class="col-sm-3">Nombre d'employés</dt>
+                <dd class="col-sm-9">
+                    <span class="badge bg-success">@ViewBag.NombreEmployes employé(s) sous sa responsabilité</span>
+                </dd>
+            </dl>
+
+            <div class="mt-4">
+                <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Modifier</a>
+                <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger">Supprimer</a>
+                <a asp-action="Index" class="btn btn-secondary">Retour à la liste</a>
+            </div>
+        </div>
+    </div>
+</div>
+

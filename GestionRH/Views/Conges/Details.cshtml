@@ -1,0 +1,89 @@
+@model GestionRH.Models.Conge
+
+@{
+    ViewData["Title"] = "Détails du congé";
+}
+
+<div class="container mt-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0"><i class="bi bi-file-text"></i> Détails du congé</h4>
+        </div>
+        <div class="card-body">
+            <dl class="row">
+                <dt class="col-sm-3">Employé</dt>
+                <dd class="col-sm-9">
+                    @if (Model.Employe != null)
+                    {
+                        <strong>@Model.Employe.NomComplet</strong>
+                    }
+                    else
+                    {
+                        <span class="text-danger">Inconnu</span>
+                    }
+                </dd>
+
+                <dt class="col-sm-3">Type de congé</dt>
+                <dd class="col-sm-9">
+                    <span class="badge bg-light text-dark border">@Model.Type</span>
+                </dd>
+
+                <dt class="col-sm-3">Date de début</dt>
+                <dd class="col-sm-9">@Model.DateDebut.ToLongDateString()</dd>
+
+                <dt class="col-sm-3">Date de fin</dt>
+                <dd class="col-sm-9">@Model.DateFin.ToLongDateString()</dd>
+
+                <dt class="col-sm-3">Durée</dt>
+                <dd class="col-sm-9">
+                    <span class="badge bg-info">@Model.Duree jour(s)</span>
+                </dd>
+
+                <dt class="col-sm-3">Statut</dt>
+                <dd class="col-sm-9">
+                    @if (Model.Statut == "EnAttente")
+                    {
+                        <span class="badge bg-warning text-dark"><i class="bi bi-clock"></i> En attente</span>
+                    }
+                    else if (Model.Statut == "ValideManager")
+                    {
+                        <span class="badge bg-info text-dark"><i class="bi bi-person-check"></i> Validé Manager</span>
+                    }
+                    else if (Model.Statut == "Valide")
+                    {
+                        <span class="badge bg-success"><i class="bi bi-check-circle"></i> Validé RH</span>
+                    }
+                    else if (Model.Statut == "Refuse")
+                    {
+                        <span class="badge bg-danger"><i class="bi bi-x-circle"></i> Refusé</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-secondary">@Model.Statut</span>
+                    }
+                </dd>
+            </dl>
+
+            <div class="mt-4">
+                @{
+                    var user = await UserManager.GetUserAsync(User);
+                    var canEdit = Model.Statut == "EnAttente" && (Model.EmployeId == user?.Id || user?.Role == "AdministrateurRH");
+                    var canDelete = Model.Statut == "EnAttente" && (Model.EmployeId == user?.Id || user?.Role == "AdministrateurRH");
+                }
+
+                @if (canEdit)
+                {
+                    <a asp-action="Edit" asp-route-id="@Model.IdConge" class="btn btn-warning">Modifier</a>
+                }
+                @if (canDelete)
+                {
+                    <a asp-action="Delete" asp-route-id="@Model.IdConge" class="btn btn-danger">Supprimer</a>
+                }
+                <a asp-action="Index" class="btn btn-secondary">Retour à la liste</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@inject Microsoft.AspNetCore.Identity.UserManager<GestionRH.Models.Utilisateur> UserManager
+

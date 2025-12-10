@@ -1,0 +1,58 @@
+@model GestionRH.Models.Paie
+
+@{
+    ViewData["Title"] = "Supprimer la paie";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h4 class="mb-0"><i class="bi bi-exclamation-triangle"></i> Supprimer la paie</h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-warning" role="alert">
+                        <strong>Attention !</strong> Êtes-vous sûr de vouloir supprimer cette paie ? Cette action est irréversible.
+                    </div>
+
+                    <dl class="row">
+                        <dt class="col-sm-4">Employé</dt>
+                        <dd class="col-sm-8">
+                            @if (Model.Employe != null)
+                            {
+                                <strong>@Model.Employe.NomComplet</strong>
+                            }
+                            else
+                            {
+                                <span class="text-danger">Inconnu</span>
+                            }
+                        </dd>
+
+                        <dt class="col-sm-4">Mois</dt>
+                        <dd class="col-sm-8">
+                            <span class="badge bg-info">@Model.Mois</span>
+                        </dd>
+
+                        <dt class="col-sm-4">Montant</dt>
+                        <dd class="col-sm-8">
+                            <span class="fs-5 fw-bold text-success">@Model.Montant.ToString("C")</span>
+                        </dd>
+
+                        <dt class="col-sm-4">Date d'émission</dt>
+                        <dd class="col-sm-8">@Model.DateEmission.ToLongDateString()</dd>
+                    </dl>
+
+                    <form asp-action="Delete" method="post" class="mt-4">
+                        <input type="hidden" asp-for="IdPaie" />
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-danger btn-lg">Oui, supprimer</button>
+                            <a asp-action="Index" class="btn btn-secondary">Annuler</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

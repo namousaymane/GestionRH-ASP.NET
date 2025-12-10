@@ -1,0 +1,51 @@
+@model GestionRH.Models.Employe
+
+@{
+    ViewData["Title"] = "Détails de l'employé";
+}
+
+<div class="container mt-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0"><i class="bi bi-person-badge"></i> Détails de l'employé</h4>
+        </div>
+        <div class="card-body">
+            <dl class="row">
+                <dt class="col-sm-3">Nom complet</dt>
+                <dd class="col-sm-9"><strong>@Model.NomComplet</strong></dd>
+
+                <dt class="col-sm-3">Email</dt>
+                <dd class="col-sm-9">@Model.Email</dd>
+
+                <dt class="col-sm-3">Poste</dt>
+                <dd class="col-sm-9">@Model.Poste</dd>
+
+                <dt class="col-sm-3">Salaire</dt>
+                <dd class="col-sm-9">@Model.Salaire.ToString("C")</dd>
+
+                @if (!string.IsNullOrEmpty(Model.ManagerId))
+                {
+                    <dt class="col-sm-3">Manager ID</dt>
+                    <dd class="col-sm-9">@Model.ManagerId</dd>
+                }
+
+                <dt class="col-sm-3">Nombre de congés</dt>
+                <dd class="col-sm-9">
+                    <span class="badge bg-info">@(Model.Conges?.Count ?? 0) congé(s)</span>
+                </dd>
+
+                <dt class="col-sm-3">Nombre de paies</dt>
+                <dd class="col-sm-9">
+                    <span class="badge bg-success">@(Model.Paies?.Count ?? 0) paie(s)</span>
+                </dd>
+            </dl>
+
+            <div class="mt-4">
+                <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Modifier</a>
+                <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger">Supprimer</a>
+                <a asp-action="Index" class="btn btn-secondary">Retour à la liste</a>
+            </div>
+        </div>
+    </div>
+</div>
+

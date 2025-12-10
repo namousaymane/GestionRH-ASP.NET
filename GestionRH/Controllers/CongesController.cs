@@ -3,9 +3,11 @@ using Microsoft.EntityFrameworkCore;
 using GestionRH.Data;
 using GestionRH.Models;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authorization;
 
 namespace GestionRH.Controllers
 {
+    [Authorize]
     public class CongesController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -82,6 +84,193 @@ namespace GestionRH.Controllers
             return View(conge);
         }
 
+        // GET: Conges/Details/5
+        public async Task<IActionResult> Details(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var conge = await _context.Conges
+                .Include(c => c.Employe)
+                .FirstOrDefaultAsync(m => m.IdConge == id);
+
+            if (conge == null)
+            {
+                return NotFound();
+            }
+
+            // Vérifier les autorisations
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return Challenge();
+
+            if (user.Role != "AdministrateurRH" && 
+                user.Role != "Responsable" && 
+                conge.EmployeId != user.Id)
+            {
+                return Forbid();
+            }
+
+            return View(conge);
+        }
+
+        // GET: Conges/Edit/5
+        public async Task<IActionResult> Edit(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var conge = await _context.Conges.FindAsync(id);
+            if (conge == null)
+            {
+                return NotFound();
+            }
+
+            // Vérifier les autorisations - seul l'employé peut modifier sa demande si elle est en attente
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return Challenge();
+
+            if (conge.EmployeId != user.Id || conge.Statut != "EnAttente")
+            {
+                if (user.Role != "AdministrateurRH")
+                {
+                    return Forbid();
+                }
+            }
+
+            return View(conge);
+        }
+
+        // POST: Conges/Edit/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, [Bind("IdConge,DateDebut,DateFin,Type,Statut,EmployeId")] Conge conge)
+        {
+            if (id != conge.IdConge)
+            {
+                return NotFound();
+            }
+
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return Challenge();
+
+            // Vérifier les autorisations
+            var existingConge = await _context.Conges.FindAsync(id);
+            if (existingConge == null) return NotFound();
+
+            if (existingConge.EmployeId != user.Id || existingConge.Statut != "EnAttente")
+            {
+                if (user.Role != "AdministrateurRH")
+                {
+                    return Forbid();
+                }
+            }
+
+            // Si c'est l'employé qui modifie, on garde le statut "EnAttente"
+            if (existingConge.EmployeId == user.Id && user.Role != "AdministrateurRH")
+            {
+                conge.Statut = "EnAttente";
+            }
+
+            ModelState.Remove("Employe");
+            if (conge.DateFin < conge.DateDebut)
+            {
+                ModelState.AddModelError("DateFin", "La date de fin doit être après la date de début.");
+            }
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    existingConge.DateDebut = conge.DateDebut;
+                    existingConge.DateFin = conge.DateFin;
+                    existingConge.Type = conge.Type;
+                    if (user.Role == "AdministrateurRH")
+                    {
+                        existingConge.Statut = conge.Statut;
+                    }
+
+                    _context.Update(existingConge);
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!CongeExists(conge.IdConge))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+                return RedirectToAction(nameof(Index));
+            }
+            return View(conge);
+        }
+
+        // GET: Conges/Delete/5
+        public async Task<IActionResult> Delete(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var conge = await _context.Conges
+                .Include(c => c.Employe)
+                .FirstOrDefaultAsync(m => m.IdConge == id);
+
+            if (conge == null)
+            {
+                return NotFound();
+            }
+
+            // Vérifier les autorisations - seul l'employé peut supprimer sa demande si elle est en attente
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return Challenge();
+
+            if (conge.EmployeId != user.Id || conge.Statut != "EnAttente")
+            {
+                if (user.Role != "AdministrateurRH")
+                {
+                    return Forbid();
+                }
+            }
+
+            return View(conge);
+        }
+
+        // POST: Conges/Delete/5
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            var conge = await _context.Conges.FindAsync(id);
+            if (conge != null)
+            {
+                // Vérifier les autorisations
+                var user = await _userManager.GetUserAsync(User);
+                if (user == null) return Challenge();
+
+                if (conge.EmployeId != user.Id || conge.Statut != "EnAttente")
+                {
+                    if (user.Role != "AdministrateurRH")
+                    {
+                        return Forbid();
+                    }
+                }
+
+                _context.Conges.Remove(conge);
+                await _context.SaveChangesAsync();
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
+
         // NOUVEAU : Action pour traiter une demande (Valider ou Refuser)
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -112,6 +301,11 @@ namespace GestionRH.Controllers
 
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
+        }
+
+        private bool CongeExists(int id)
+        {
+            return _context.Conges.Any(e => e.IdConge == id);
         }
     }
 }

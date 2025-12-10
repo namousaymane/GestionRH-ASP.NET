@@ -1,0 +1,64 @@
+@model GestionRH.Models.Paie
+
+@{
+    ViewData["Title"] = "Détails de la paie";
+}
+
+<div class="container mt-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0"><i class="bi bi-receipt"></i> Détails de la paie</h4>
+        </div>
+        <div class="card-body">
+            <dl class="row">
+                <dt class="col-sm-3">Employé</dt>
+                <dd class="col-sm-9">
+                    @if (Model.Employe != null)
+                    {
+                        <strong>@Model.Employe.NomComplet</strong>
+                        <br />
+                        <small class="text-muted">@Model.Employe.Poste</small>
+                    }
+                    else
+                    {
+                        <span class="text-danger">Inconnu</span>
+                    }
+                </dd>
+
+                <dt class="col-sm-3">Mois</dt>
+                <dd class="col-sm-9">
+                    <span class="badge bg-info fs-6">@Model.Mois</span>
+                </dd>
+
+                <dt class="col-sm-3">Montant</dt>
+                <dd class="col-sm-9">
+                    <span class="fs-4 fw-bold text-success">@Model.Montant.ToString("C")</span>
+                </dd>
+
+                <dt class="col-sm-3">Date d'émission</dt>
+                <dd class="col-sm-9">@Model.DateEmission.ToLongDateString()</dd>
+
+                @if (Model.Employe != null)
+                {
+                    <dt class="col-sm-3">Salaire de base</dt>
+                    <dd class="col-sm-9">@Model.Employe.Salaire.ToString("C")</dd>
+                }
+            </dl>
+
+            <div class="mt-4">
+                @{
+                    var user = await UserManager.GetUserAsync(User);
+                    if (user?.Role == "AdministrateurRH")
+                    {
+                        <a asp-action="Edit" asp-route-id="@Model.IdPaie" class="btn btn-warning">Modifier</a>
+                        <a asp-action="Delete" asp-route-id="@Model.IdPaie" class="btn btn-danger">Supprimer</a>
+                    }
+                }
+                <a asp-action="Index" class="btn btn-secondary">Retour à la liste</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@inject Microsoft.AspNetCore.Identity.UserManager<GestionRH.Models.Utilisateur> UserManager
+

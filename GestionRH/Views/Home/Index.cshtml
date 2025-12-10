@@ -1,8 +1,197 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model GestionRH.Controllers.DashboardStats
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<GestionRH.Models.Utilisateur> UserManager
+
+@{
+    ViewData["Title"] = "Tableau de bord";
+    var user = await UserManager.GetUserAsync(User);
+    var userRole = user?.Role;
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+@if (user == null)
+{
+    <div class="text-center mt-5">
+        <h1 class="display-4">Bienvenue sur GestionRH</h1>
+        <p class="lead">Système de gestion des ressources humaines</p>
+        <div class="mt-4">
+            <a asp-area="Identity" asp-page="/Account/Login" class="btn btn-primary btn-lg me-2">Se connecter</a>
+            <a asp-area="Identity" asp-page="/Account/Register" class="btn btn-outline-primary btn-lg">S'inscrire</a>
+        </div>
+    </div>
+}
+else
+{
+    <div class="container-fluid mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="display-5">Tableau de bord</h1>
+            <span class="badge bg-primary fs-6">@userRole</span>
+        </div>
+
+        <div class="row g-4">
+            @if (userRole == "AdministrateurRH")
+            {
+                <!-- Statistiques pour Administrateur RH -->
+                <div class="col-md-3">
+                    <div class="card shadow-sm border-primary">
+                        <div class="card-body text-center">
+                            <i class="bi bi-people-fill display-4 text-primary mb-2"></i>
+                            <h3 class="card-title">@Model.TotalEmployes</h3>
+                            <p class="card-text text-muted">Employés</p>
+                            <a asp-controller="Employes" asp-action="Index" class="btn btn-sm btn-outline-primary">Voir</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="card shadow-sm border-info">
+                        <div class="card-body text-center">
+                            <i class="bi bi-person-badge-fill display-4 text-info mb-2"></i>
+                            <h3 class="card-title">@Model.TotalResponsables</h3>
+                            <p class="card-text text-muted">Responsables</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="card shadow-sm border-warning">
+                        <div class="card-body text-center">
+                            <i class="bi bi-calendar-check-fill display-4 text-warning mb-2"></i>
+                            <h3 class="card-title">@Model.TotalConges</h3>
+                            <p class="card-text text-muted">Total Congés</p>
+                            <a asp-controller="Conges" asp-action="Index" class="btn btn-sm btn-outline-warning">Voir</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="card shadow-sm border-success">
+                        <div class="card-body text-center">
+                            <i class="bi bi-cash-stack display-4 text-success mb-2"></i>
+                            <h3 class="card-title">@Model.TotalPaies</h3>
+                            <p class="card-text text-muted">Paies</p>
+                            <a asp-controller="Paies" asp-action="Index" class="btn btn-sm btn-outline-success">Voir</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 mt-4">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-warning text-dark">
+                            <h5 class="mb-0"><i class="bi bi-clock-history"></i> Congés en attente</h5>
+                        </div>
+                        <div class="card-body text-center">
+                            <h2 class="display-3">@Model.CongesEnAttente</h2>
+                            <p class="text-muted">Demandes nécessitant une validation</p>
+                            <a asp-controller="Conges" asp-action="Index" class="btn btn-warning">Traiter</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 mt-4">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-success text-white">
+                            <h5 class="mb-0"><i class="bi bi-check-circle-fill"></i> Congés validés</h5>
+                        </div>
+                        <div class="card-body text-center">
+                            <h2 class="display-3">@Model.CongesValides</h2>
+                            <p class="text-muted">Demandes approuvées</p>
+                        </div>
+                    </div>
+                </div>
+            }
+            else if (userRole == "Responsable")
+            {
+                <!-- Statistiques pour Responsable -->
+                <div class="col-md-4">
+                    <div class="card shadow-sm border-primary">
+                        <div class="card-body text-center">
+                            <i class="bi bi-people-fill display-4 text-primary mb-2"></i>
+                            <h3 class="card-title">@Model.TotalEmployes</h3>
+                            <p class="card-text text-muted">Employés dans mon équipe</p>
+                            <a asp-controller="Employes" asp-action="Index" class="btn btn-sm btn-outline-primary">Voir</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card shadow-sm border-warning">
+                        <div class="card-body text-center">
+                            <i class="bi bi-calendar-check-fill display-4 text-warning mb-2"></i>
+                            <h3 class="card-title">@Model.TotalConges</h3>
+                            <p class="card-text text-muted">Congés de l'équipe</p>
+                            <a asp-controller="Conges" asp-action="Index" class="btn btn-sm btn-outline-warning">Voir</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card shadow-sm border-danger">
+                        <div class="card-body text-center">
+                            <i class="bi bi-clock-history display-4 text-danger mb-2"></i>
+                            <h3 class="card-title">@Model.CongesEnAttente</h3>
+                            <p class="card-text text-muted">En attente de validation</p>
+                            <a asp-controller="Conges" asp-action="Index" class="btn btn-sm btn-outline-danger">Traiter</a>
+                        </div>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <!-- Statistiques pour Employé -->
+                <div class="col-md-4">
+                    <div class="card shadow-sm border-primary">
+                        <div class="card-body text-center">
+                            <i class="bi bi-calendar-check-fill display-4 text-primary mb-2"></i>
+                            <h3 class="card-title">@Model.TotalConges</h3>
+                            <p class="card-text text-muted">Mes congés</p>
+                            <a asp-controller="Conges" asp-action="Index" class="btn btn-sm btn-outline-primary">Voir</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card shadow-sm border-warning">
+                        <div class="card-body text-center">
+                            <i class="bi bi-clock-history display-4 text-warning mb-2"></i>
+                            <h3 class="card-title">@Model.CongesEnAttente</h3>
+                            <p class="card-text text-muted">En attente</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card shadow-sm border-success">
+                        <div class="card-body text-center">
+                            <i class="bi bi-wallet2 display-4 text-success mb-2"></i>
+                            <h3 class="card-title">@Model.TotalPaies</h3>
+                            <p class="card-text text-muted">Mes paies</p>
+                            <a asp-controller="Paies" asp-action="Index" class="btn btn-sm btn-outline-success">Voir</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-12 mt-4">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0">Actions rapides</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <a asp-controller="Conges" asp-action="Create" class="btn btn-primary btn-lg w-100 mb-2">
+                                        <i class="bi bi-calendar-plus"></i> Demander un congé
+                                    </a>
+                                </div>
+                                <div class="col-md-6">
+                                    <a asp-controller="Paies" asp-action="Index" class="btn btn-success btn-lg w-100 mb-2">
+                                        <i class="bi bi-wallet2"></i> Consulter mes paies
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+}

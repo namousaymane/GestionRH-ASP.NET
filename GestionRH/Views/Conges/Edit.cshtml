@@ -1,19 +1,21 @@
-﻿@model GestionRH.Models.Conge
+@model GestionRH.Models.Conge
 
 @{
-    ViewData["Title"] = "Demander un congé";
+    ViewData["Title"] = "Modifier le congé";
 }
 
 <div class="container mt-4">
     <div class="row justify-content-center">
         <div class="col-md-6">
             <div class="card shadow-sm">
-                <div class="card-header bg-primary text-white">
-                    <h4 class="mb-0"><i class="bi bi-calendar-plus"></i> Nouvelle demande de congé</h4>
+                <div class="card-header bg-warning text-dark">
+                    <h4 class="mb-0"><i class="bi bi-pencil-square"></i> Modifier la demande de congé</h4>
                 </div>
                 <div class="card-body">
-                    <form asp-action="Create">
+                    <form asp-action="Edit">
                         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        <input type="hidden" asp-for="IdConge" />
+                        <input type="hidden" asp-for="EmployeId" />
 
                         <div class="form-group mb-3">
                             <label asp-for="Type" class="control-label fw-bold">Type de congé</label>
@@ -38,9 +40,30 @@
                             <span asp-validation-for="DateFin" class="text-danger"></span>
                         </div>
 
+                        @{
+                            var user = await UserManager.GetUserAsync(User);
+                            if (user?.Role == "AdministrateurRH")
+                            {
+                                <div class="form-group mb-3">
+                                    <label asp-for="Statut" class="control-label fw-bold">Statut</label>
+                                    <select asp-for="Statut" class="form-select">
+                                        <option value="EnAttente">En attente</option>
+                                        <option value="ValideManager">Validé Manager</option>
+                                        <option value="Valide">Validé RH</option>
+                                        <option value="Refuse">Refusé</option>
+                                    </select>
+                                    <span asp-validation-for="Statut" class="text-danger"></span>
+                                </div>
+                            }
+                            else
+                            {
+                                <input type="hidden" asp-for="Statut" />
+                            }
+                        }
+
                         <div class="d-grid gap-2 mt-4">
-                            <button type="submit" class="btn btn-success btn-lg">Envoyer la demande</button>
-                            <a asp-action="Index" class="btn btn-light">Annuler</a>
+                            <button type="submit" class="btn btn-warning btn-lg">Enregistrer les modifications</button>
+                            <a asp-action="Details" asp-route-id="@Model.IdConge" class="btn btn-secondary">Annuler</a>
                         </div>
                     </form>
                 </div>
@@ -49,8 +72,11 @@
     </div>
 </div>
 
+@inject Microsoft.AspNetCore.Identity.UserManager<GestionRH.Models.Utilisateur> UserManager
+
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
 }
+

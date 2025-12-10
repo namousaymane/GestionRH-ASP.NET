@@ -1,0 +1,81 @@
+@model GestionRH.Models.Conge
+
+@{
+    ViewData["Title"] = "Supprimer le congé";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h4 class="mb-0"><i class="bi bi-exclamation-triangle"></i> Supprimer la demande de congé</h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-warning" role="alert">
+                        <strong>Attention !</strong> Êtes-vous sûr de vouloir supprimer cette demande de congé ? Cette action est irréversible.
+                    </div>
+
+                    <dl class="row">
+                        <dt class="col-sm-4">Employé</dt>
+                        <dd class="col-sm-8">
+                            @if (Model.Employe != null)
+                            {
+                                <strong>@Model.Employe.NomComplet</strong>
+                            }
+                            else
+                            {
+                                <span class="text-danger">Inconnu</span>
+                            }
+                        </dd>
+
+                        <dt class="col-sm-4">Type de congé</dt>
+                        <dd class="col-sm-8">
+                            <span class="badge bg-light text-dark border">@Model.Type</span>
+                        </dd>
+
+                        <dt class="col-sm-4">Date de début</dt>
+                        <dd class="col-sm-8">@Model.DateDebut.ToLongDateString()</dd>
+
+                        <dt class="col-sm-4">Date de fin</dt>
+                        <dd class="col-sm-8">@Model.DateFin.ToLongDateString()</dd>
+
+                        <dt class="col-sm-4">Durée</dt>
+                        <dd class="col-sm-8">
+                            <span class="badge bg-info">@Model.Duree jour(s)</span>
+                        </dd>
+
+                        <dt class="col-sm-4">Statut</dt>
+                        <dd class="col-sm-8">
+                            @if (Model.Statut == "EnAttente")
+                            {
+                                <span class="badge bg-warning text-dark"><i class="bi bi-clock"></i> En attente</span>
+                            }
+                            else if (Model.Statut == "ValideManager")
+                            {
+                                <span class="badge bg-info text-dark"><i class="bi bi-person-check"></i> Validé Manager</span>
+                            }
+                            else if (Model.Statut == "Valide")
+                            {
+                                <span class="badge bg-success"><i class="bi bi-check-circle"></i> Validé RH</span>
+                            }
+                            else if (Model.Statut == "Refuse")
+                            {
+                                <span class="badge bg-danger"><i class="bi bi-x-circle"></i> Refusé</span>
+                            }
+                        </dd>
+                    </dl>
+
+                    <form asp-action="Delete" method="post" class="mt-4">
+                        <input type="hidden" asp-for="IdConge" />
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-danger btn-lg">Oui, supprimer</button>
+                            <a asp-action="Index" class="btn btn-secondary">Annuler</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

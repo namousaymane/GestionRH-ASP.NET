@@ -1,0 +1,61 @@
+@model GestionRH.Models.Employe
+
+@{
+    ViewData["Title"] = "Supprimer l'employé";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h4 class="mb-0"><i class="bi bi-exclamation-triangle"></i> Supprimer l'employé</h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-warning" role="alert">
+                        <strong>Attention !</strong> Êtes-vous sûr de vouloir supprimer cet employé ? Cette action est irréversible.
+                    </div>
+
+                    <dl class="row">
+                        <dt class="col-sm-4">Nom complet</dt>
+                        <dd class="col-sm-8"><strong>@Model.NomComplet</strong></dd>
+
+                        <dt class="col-sm-4">Email</dt>
+                        <dd class="col-sm-8">@Model.Email</dd>
+
+                        <dt class="col-sm-4">Poste</dt>
+                        <dd class="col-sm-8">@Model.Poste</dd>
+
+                        <dt class="col-sm-4">Salaire</dt>
+                        <dd class="col-sm-8">@Model.Salaire.ToString("C")</dd>
+
+                        @if (Model.Conges != null && Model.Conges.Any())
+                        {
+                            <dt class="col-sm-4">Congés</dt>
+                            <dd class="col-sm-8">
+                                <span class="badge bg-warning">@Model.Conges.Count congé(s) associé(s)</span>
+                            </dd>
+                        }
+
+                        @if (Model.Paies != null && Model.Paies.Any())
+                        {
+                            <dt class="col-sm-4">Paies</dt>
+                            <dd class="col-sm-8">
+                                <span class="badge bg-warning">@Model.Paies.Count paie(s) associée(s)</span>
+                            </dd>
+                        }
+                    </dl>
+
+                    <form asp-action="Delete" method="post" class="mt-4">
+                        <input type="hidden" asp-for="Id" />
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-danger btn-lg">Oui, supprimer</button>
+                            <a asp-action="Index" class="btn btn-secondary">Annuler</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
