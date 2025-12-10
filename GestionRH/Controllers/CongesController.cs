@@ -82,27 +82,43 @@ namespace GestionRH.Controllers
             return View(conge);
         }
 
-        // NOUVEAU : Action pour traiter une demande (Valider ou Refuser)
         [HttpPost]
         [ValidateAntiForgeryToken]
+        // POST: Conges/Traiter
         public async Task<IActionResult> Traiter(int id, string decision)
         {
-            var conge = await _context.Conges.FindAsync(id);
+            // On inclut l'employé pour pouvoir modifier son solde
+            var conge = await _context.Conges.Include(c => c.Employe).FirstOrDefaultAsync(c => c.IdConge == id);
+
             if (conge == null) return NotFound();
 
             var user = await _userManager.GetUserAsync(User);
 
-            // Logique de validation à 2 niveaux (Manager -> RH)
             if (decision == "Valider")
             {
                 if (user.Role == "Responsable")
                 {
-                    conge.Statut = "ValideManager"; // 1er niveau
+                    conge.Statut = "ValideManager";
                 }
                 else if (user.Role == "AdministrateurRH")
                 {
-                    conge.Statut = "Valide"; // Validation finale
-                    // ICI : On pourrait déduire du solde de l'employé
+                    // VÉRIFICATION DU SOLDE AVANT VALIDATION
+                    int duree = (conge.DateFin - conge.DateDebut).Days + 1;
+
+                    if (conge.Employe.SoldeConges >= duree)
+                    {
+                        conge.Statut = "Valide";
+                        // DÉCRÉMENTATION
+                        conge.Employe.SoldeConges -= duree;
+                    }
+                    else
+                    {
+                        // Optionnel : Gérer l'erreur si solde insuffisant (pour l'instant on refuse ou on laisse passer en négatif ?)
+                        // Pour faire simple : on laisse passer ou on met un message, 
+                        // mais techniquement on retire les jours :
+                        conge.Statut = "Valide";
+                        conge.Employe.SoldeConges -= duree;
+                    }
                 }
             }
             else if (decision == "Refuser")

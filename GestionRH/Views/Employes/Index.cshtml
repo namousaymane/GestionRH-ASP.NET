@@ -18,6 +18,7 @@
                 <th>Nom Complet</th>
                 <th>Email</th>
                 <th>Poste</th>
+                <th>Solde</th>
                 <th>Salaire</th>
                 <th>Actions</th>
             </tr>
@@ -37,10 +38,16 @@
                         <td>@item.NomComplet</td>
                         <td>@item.Email</td>
                         <td>@item.Poste</td>
+                        <td>@item.SoldeConges j</td>
                         <td>@item.Salaire.ToString("C")</td>
                         <td>
                             <a href="#" class="btn btn-sm btn-info text-white">Détails</a>
-                            <a href="#" class="btn btn-sm btn-warning">Modifier</a>
+                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning">
+                                <i class="bi bi-pencil"></i> Modifier
+                            </a>
+                            <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger">
+                                <i class="bi bi-trash"></i> Supprimer
+                            </a>
                         </td>
                     </tr>
                 }

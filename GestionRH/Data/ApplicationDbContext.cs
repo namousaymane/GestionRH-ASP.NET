@@ -19,15 +19,15 @@ namespace GestionRH.Data
         public DbSet<AdministrateurRH> AdministrateursRH { get; set; }
         public DbSet<Conge> Conges { get; set; }
         public DbSet<Paie> Paies { get; set; }
+        public DbSet<Departement> Departements { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
-            // Réduire les longueurs Identity pour éviter l'erreur MySQL
+            // --- 1. FIX MYSQL : Réduire les longueurs des clés Identity ---
             modelBuilder.Entity<Utilisateur>(entity =>
             {
-                // Limit key columns so indexes fit MySQL limits with utf8mb4
                 entity.Property(u => u.Id).HasMaxLength(100);
                 entity.Property(u => u.NormalizedEmail).HasMaxLength(100);
                 entity.Property(u => u.NormalizedUserName).HasMaxLength(100);
@@ -59,14 +59,10 @@ namespace GestionRH.Data
             modelBuilder.Entity<IdentityUserToken<string>>(entity =>
             {
                 entity.HasKey(t => new { t.UserId, t.LoginProvider, t.Name });
-
                 entity.Property(t => t.UserId).HasMaxLength(100);
-
-                // Reduce to avoid exceeding MySQL’s key length limit
                 entity.Property(t => t.LoginProvider).HasMaxLength(50);
                 entity.Property(t => t.Name).HasMaxLength(50);
             });
-
 
             modelBuilder.Entity<IdentityUserClaim<string>>(entity =>
             {
@@ -78,7 +74,7 @@ namespace GestionRH.Data
                 entity.Property(rc => rc.RoleId).HasMaxLength(100);
             });
 
-            // TPH pour Utilisateur
+            // --- 2. CONFIGURATION TPH (Héritage) ---
             modelBuilder.Entity<Utilisateur>()
                 .HasDiscriminator<string>("TypeUtilisateur")
                 .HasValue<Utilisateur>("Utilisateur")
@@ -86,7 +82,7 @@ namespace GestionRH.Data
                 .HasValue<Responsable>("Responsable")
                 .HasValue<AdministrateurRH>("AdministrateurRH");
 
-            // Conge et Paie
+            // --- 3. CONFIGURATION RH (Congés & Paie) ---
             modelBuilder.Entity<Conge>(entity =>
             {
                 entity.HasKey(c => c.IdConge);
@@ -97,6 +93,7 @@ namespace GestionRH.Data
                 entity.Property(c => c.Type).IsRequired().HasMaxLength(50);
                 entity.Property(c => c.Statut).HasDefaultValue("EnAttente").HasMaxLength(50);
                 entity.Property(c => c.EmployeId).HasMaxLength(100);
+                entity.HasIndex(c => c.Statut);
             });
 
             modelBuilder.Entity<Paie>(entity =>
@@ -108,12 +105,25 @@ namespace GestionRH.Data
                     .OnDelete(DeleteBehavior.Cascade);
                 entity.Property(p => p.Montant).HasColumnType("decimal(18,2)").IsRequired();
                 entity.Property(p => p.EmployeId).HasMaxLength(100);
+                entity.HasIndex(p => p.Mois);
             });
 
-            modelBuilder.Entity<Conge>().HasIndex(c => c.Statut);
-            modelBuilder.Entity<Paie>().HasIndex(p => p.Mois);
-        }
+            // --- 4. CONFIGURATION DEPARTEMENT (C'est ce bloc qui manquait !) ---
 
+            // Relation A : Un employé appartient à un département
+            modelBuilder.Entity<Employe>()
+                .HasOne(e => e.Departement)
+                .WithMany(d => d.Employes)
+                .HasForeignKey(e => e.DepartementId)
+                .OnDelete(DeleteBehavior.SetNull); // Si on supprime le département, l'employé reste (sans département)
+
+            // Relation B : Un département est dirigé par un chef (Employe)
+            modelBuilder.Entity<Departement>()
+                .HasOne(d => d.Chef)
+                .WithMany() // Pas de liste "DepartementsDiriges" sur l'employé, on laisse vide
+                .HasForeignKey(d => d.ChefId)
+                .OnDelete(DeleteBehavior.SetNull); // Si le chef part, le département n'a plus de chef
+        }
 
     }
 }

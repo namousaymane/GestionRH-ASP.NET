@@ -94,5 +94,31 @@ namespace GestionRH.Controllers
             ViewData["EmployeId"] = new Microsoft.AspNetCore.Mvc.Rendering.SelectList(_context.Employes, "Id", "NomComplet", EmployeId);
             return View();
         }
+
+        // GET: Paies/DownloadPdf/5
+        public async Task<IActionResult> DownloadPdf(int id)
+        {
+            // 1. Récupérer la paie avec les infos de l'employé
+            var paie = await _context.Paies
+                .Include(p => p.Employe)
+                .FirstOrDefaultAsync(m => m.IdPaie == id);
+
+            if (paie == null) return NotFound();
+
+            // Sécurité : Un employé ne peut télécharger que SA paie (sauf Admin)
+            var user = await _userManager.GetUserAsync(User);
+            if (user.Role != "AdministrateurRH" && paie.EmployeId != user.Id)
+            {
+                return Forbid(); // Interdit
+            }
+
+            // 2. Générer le PDF
+            var pdfService = new GestionRH.Services.PdfService();
+            var pdfBytes = pdfService.GenererBulletinPaie(paie);
+
+            // 3. Renvoyer le fichier
+            string fileName = $"Bulletin_{paie.Employe.Nom}_{paie.Mois}.pdf";
+            return File(pdfBytes, "application/pdf", fileName);
+        }
     }
 }

@@ -1,8 +1,90 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Accueil";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+@if (!User.Identity.IsAuthenticated)
+{
+    <div class="text-center mt-5">
+        <h1 class="display-4 text-primary fw-bold">Bienvenue sur GestionRH</h1>
+        <p class="lead mt-3">La solution centralisée pour la gestion de vos ressources humaines.</p>
+        <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="HR Logo" style="width: 200px; opacity: 0.8;" class="my-4" />
+        <div class="mt-4">
+            <a href="/Identity/Account/Login" class="btn btn-primary btn-lg px-5 mx-2">Se connecter</a>
+            <a href="/Identity/Account/Register" class="btn btn-outline-primary btn-lg px-5 mx-2">S'inscrire</a>
+        </div>
+    </div>
+}
+else
+{
+    <div class="container mt-4">
+        <div class="row mb-4">
+            <div class="col-12">
+                <h2 class="fw-bold text-dark">👋 Bonjour, @User.Identity.Name</h2>
+                <p class="text-muted">Voici un aperçu de la situation RH aujourd'hui.</p>
+            </div>
+        </div>
+
+        <div class="row g-4 mb-5">
+            <div class="col-md-4">
+                <div class="card shadow-sm border-0 bg-primary text-white h-100">
+                    <div class="card-body d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-uppercase mb-2 opacity-75">Effectif Total</h6>
+                            <h2 class="display-5 fw-bold mb-0">@ViewData["TotalEmployes"]</h2>
+                        </div>
+                        <i class="bi bi-people-fill fs-1 opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card shadow-sm border-0 bg-warning text-dark h-100">
+                    <div class="card-body d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-uppercase mb-2 opacity-75">Demandes en attente</h6>
+                            <h2 class="display-5 fw-bold mb-0">@ViewData["CongesEnAttente"]</h2>
+                        </div>
+                        <i class="bi bi-hourglass-split fs-1 opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card shadow-sm border-0 bg-success text-white h-100">
+                    <div class="card-body d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-uppercase mb-2 opacity-75">Masse Salariale / Mois</h6>
+                            <h2 class="display-6 fw-bold mb-0">@string.Format("{0:C0}", ViewData["MasseSalariale"])</h2>
+                        </div>
+                        <i class="bi bi-cash-stack fs-1 opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-5">
+            <h4 class="mb-3">Accès Rapide</h4>
+            <div class="col-md-3">
+                <a asp-controller="Conges" asp-action="Create" class="btn btn-outline-primary w-100 p-4 text-start shadow-sm hover-shadow">
+                    <i class="bi bi-calendar-plus fs-3 mb-2 d-block"></i>
+                    <span class="fw-bold">Poser un congé</span>
+                </a>
+            </div>
+            @if (User.IsInRole("AdministrateurRH"))
+            {
+                <div class="col-md-3">
+                    <a asp-controller="Employes" asp-action="Create" class="btn btn-outline-dark w-100 p-4 text-start shadow-sm">
+                        <i class="bi bi-person-plus fs-3 mb-2 d-block"></i>
+                        <span class="fw-bold">Nouvel Employé</span>
+                    </a>
+                </div>
+                <div class="col-md-3">
+                    <a asp-controller="Paies" asp-action="Create" class="btn btn-outline-success w-100 p-4 text-start shadow-sm">
+                        <i class="bi bi-file-earmark-spreadsheet fs-3 mb-2 d-block"></i>
+                        <span class="fw-bold">Générer Paie</span>
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+}

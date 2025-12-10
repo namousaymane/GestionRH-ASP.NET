@@ -3,6 +3,7 @@ using System;
 using GestionRH.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GestionRH.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251210093415_AddSoldeConges")]
+    partial class AddSoldeConges
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -55,26 +58,6 @@ namespace GestionRH.Migrations
                     b.HasIndex("Statut");
 
                     b.ToTable("Conges");
-                });
-
-            modelBuilder.Entity("GestionRH.Models.Departement", b =>
-                {
-                    b.Property<int>("DepartementId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    b.Property<string>("ChefId")
-                        .HasColumnType("varchar(100)");
-
-                    b.Property<string>("Nom")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.HasKey("DepartementId");
-
-                    b.HasIndex("ChefId");
-
-                    b.ToTable("Departements");
                 });
 
             modelBuilder.Entity("GestionRH.Models.Paie", b =>
@@ -346,9 +329,6 @@ namespace GestionRH.Migrations
                 {
                     b.HasBaseType("GestionRH.Models.Utilisateur");
 
-                    b.Property<int?>("DepartementId")
-                        .HasColumnType("int");
-
                     b.Property<string>("ManagerId")
                         .HasColumnType("longtext");
 
@@ -362,8 +342,6 @@ namespace GestionRH.Migrations
 
                     b.Property<int>("SoldeConges")
                         .HasColumnType("int");
-
-                    b.HasIndex("DepartementId");
 
                     b.HasDiscriminator().HasValue("Employe");
                 });
@@ -384,16 +362,6 @@ namespace GestionRH.Migrations
                         .IsRequired();
 
                     b.Navigation("Employe");
-                });
-
-            modelBuilder.Entity("GestionRH.Models.Departement", b =>
-                {
-                    b.HasOne("GestionRH.Models.Employe", "Chef")
-                        .WithMany()
-                        .HasForeignKey("ChefId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
-                    b.Navigation("Chef");
                 });
 
             modelBuilder.Entity("GestionRH.Models.Paie", b =>
@@ -456,21 +424,6 @@ namespace GestionRH.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("GestionRH.Models.Employe", b =>
-                {
-                    b.HasOne("GestionRH.Models.Departement", "Departement")
-                        .WithMany("Employes")
-                        .HasForeignKey("DepartementId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
-                    b.Navigation("Departement");
-                });
-
-            modelBuilder.Entity("GestionRH.Models.Departement", b =>
-                {
-                    b.Navigation("Employes");
                 });
 
             modelBuilder.Entity("GestionRH.Models.Employe", b =>

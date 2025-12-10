@@ -51,9 +51,9 @@
                         <td>@item.DateEmission.ToShortDateString()</td>
                         <td class="text-end fw-bold">@item.Montant.ToString("C")</td>
                         <td>
-                            <button class="btn btn-sm btn-outline-danger" disabled>
-                                <i class="bi bi-file-pdf"></i> PDF (Bientôt)
-                            </button>
+                            <a asp-action="DownloadPdf" asp-route-id="@item.IdPaie" class="btn btn-sm btn-outline-danger">
+                                <i class="bi bi-file-pdf"></i> Télécharger PDF
+                            </a>
                         </td>
                     </tr>
                 }
