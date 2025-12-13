@@ -1,48 +1,88 @@
-@model GestionRH.Models.Paie
-
-@{
-    ViewData["Title"] = "Créer une paie";
+﻿@{
+    ViewData["Title"] = "Générer un bulletin de paie";
 }
 
 <div class="container mt-4">
     <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card shadow-sm">
-                <div class="card-header bg-primary text-white">
-                    <h4 class="mb-0"><i class="bi bi-cash-coin"></i> Nouvelle paie</h4>
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0">🧮 Calcul de Paie</h4>
                 </div>
                 <div class="card-body">
+                    @if (ViewBag.Message != null)
+                    {
+                        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                            <i class="bi bi-exclamation-triangle"></i> @ViewBag.Message
+                            <a asp-controller="Employes" asp-action="Create" class="alert-link">Créer un employé maintenant</a>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    }
                     <form asp-action="Create">
                         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
                         <div class="form-group mb-3">
-                            <label asp-for="EmployeId" class="control-label fw-bold">Employé</label>
-                            <select asp-for="EmployeId" class="form-select" asp-items="ViewBag.Employes">
-                                <option value="">-- Sélectionner un employé --</option>
-                            </select>
-                            <span asp-validation-for="EmployeId" class="text-danger"></span>
+                            <label class="control-label fw-bold">Sélectionner l'employé</label>
+                            @if (ViewBag.Employes == null || ((Microsoft.AspNetCore.Mvc.Rendering.SelectList)ViewBag.Employes).Count() == 0)
+                            {
+                                <div class="alert alert-warning">
+                                    <i class="bi bi-exclamation-triangle"></i> Aucun employé disponible. Veuillez d'abord créer des employés.
+                                </div>
+                                <select name="EmployeId" class="form-control" disabled>
+                                    <option>Aucun employé disponible</option>
+                                </select>
+                            }
+                            else
+                            {
+                                <select name="EmployeId" class="form-select" asp-items="ViewBag.Employes" required>
+                                    <option value="">-- Sélectionner un employé --</option>
+                                </select>
+                            }
                         </div>
 
-                        <div class="form-group mb-3">
-                            <label asp-for="Mois" class="control-label fw-bold">Mois</label>
-                            <input asp-for="Mois" class="form-control" placeholder="Ex: Janvier 2024" />
-                            <span asp-validation-for="Mois" class="text-danger"></span>
+                        <div class="row">
+                            <div class="col-md-6 form-group mb-3">
+                                <label class="control-label fw-bold">Mois</label>
+                                <select name="Mois" class="form-select">
+                                    <option>Janvier</option>
+                                    <option>Février</option>
+                                    <option>Mars</option>
+                                    <option>Avril</option>
+                                    <option>Mai</option>
+                                    <option>Juin</option>
+                                    <option>Juillet</option>
+                                    <option>Août</option>
+                                    <option>Septembre</option>
+                                    <option>Octobre</option>
+                                    <option>Novembre</option>
+                                    <option selected>Décembre</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 form-group mb-3">
+                                <label class="control-label fw-bold">Année</label>
+                                <input type="number" name="Annee" class="form-control" value="2025" />
+                            </div>
                         </div>
 
-                        <div class="form-group mb-3">
-                            <label asp-for="Montant" class="control-label fw-bold">Montant</label>
-                            <input asp-for="Montant" class="form-control" type="number" step="0.01" />
-                            <span asp-validation-for="Montant" class="text-danger"></span>
-                        </div>
+                        <hr />
+                        <h5 class="text-muted">Variables du mois</h5>
 
-                        <div class="form-group mb-3">
-                            <label asp-for="DateEmission" class="control-label fw-bold">Date d'émission</label>
-                            <input asp-for="DateEmission" class="form-control" type="date" />
-                            <span asp-validation-for="DateEmission" class="text-danger"></span>
+                        <div class="row">
+                            <div class="col-md-6 form-group mb-3">
+                                <label class="control-label text-success">Primes / Bonus (+)</label>
+                                <input type="number" name="Primes" class="form-control" value="0" step="0.01" />
+                                <small class="text-muted">Heures sup, prime rendement...</small>
+                            </div>
+
+                            <div class="col-md-6 form-group mb-3">
+                                <label class="control-label text-danger">Retenues / Absences (-)</label>
+                                <input type="number" name="Retenues" class="form-control" value="0" step="0.01" />
+                                <small class="text-muted">Retards, acomptes...</small>
+                            </div>
                         </div>
 
                         <div class="d-grid gap-2 mt-4">
-                            <button type="submit" class="btn btn-success btn-lg">Créer la paie</button>
+                            <button type="submit" class="btn btn-success btn-lg">Valider et Calculer</button>
                             <a asp-action="Index" class="btn btn-light">Annuler</a>
                         </div>
                     </form>
@@ -51,10 +91,3 @@
         </div>
     </div>
 </div>
-
-@section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
-}
-

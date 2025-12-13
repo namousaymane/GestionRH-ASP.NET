@@ -1,0 +1,63 @@
+@model GestionRH.Models.Departement
+
+@{
+    ViewData["Title"] = "Supprimer le Département";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h4 class="mb-0"><i class="bi bi-exclamation-triangle"></i> Confirmer la suppression</h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-warning">
+                        <i class="bi bi-exclamation-triangle-fill"></i> <strong>Attention !</strong> Êtes-vous sûr de vouloir supprimer ce département ?
+                        @if (Model.Employes.Any())
+                        {
+                            <text><br />Les employés de ce département ne seront pas supprimés, mais leur département sera mis à null.</text>
+                        }
+                    </div>
+
+                    <h5 class="text-primary">Informations du Département</h5>
+                    <hr />
+                    <dl class="row">
+                        <dt class="col-sm-4">Nom :</dt>
+                        <dd class="col-sm-8">@Model.Nom</dd>
+
+                        <dt class="col-sm-4">Responsable :</dt>
+                        <dd class="col-sm-8">
+                            @if (Model.Chef != null)
+                            {
+                                @Model.Chef.NomComplet
+                            }
+                            else
+                            {
+                                <span class="text-muted">Non assigné</span>
+                            }
+                        </dd>
+
+                        <dt class="col-sm-4">Nombre d'employés :</dt>
+                        <dd class="col-sm-8">
+                            <span class="badge bg-info">@Model.Employes.Count</span>
+                        </dd>
+                    </dl>
+
+                    <form asp-action="Delete" method="post" class="mt-4">
+                        <input type="hidden" asp-for="DepartementId" />
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <button type="submit" class="btn btn-danger">
+                                <i class="bi bi-trash"></i> Supprimer définitivement
+                            </button>
+                            <a asp-action="Index" class="btn btn-secondary">Annuler</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+

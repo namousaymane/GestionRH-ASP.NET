@@ -1,5 +1,6 @@
 using GestionRH.Data;
 using GestionRH.Models;
+using GestionRH.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -25,6 +26,13 @@ builder.Services.AddDefaultIdentity<Utilisateur>(options =>
 })
 .AddEntityFrameworkStores<ApplicationDbContext>();
 builder.Services.AddControllersWithViews();
+
+// Enregistrer les services
+builder.Services.AddScoped<PdfService>();
+builder.Services.AddScoped<GestionRH.Services.NotificationService>();
+
+// Ajouter SignalR pour les notifications en temps réel
+builder.Services.AddSignalR();
 
 var app = builder.Build();
 
@@ -52,5 +60,8 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 app.MapRazorPages();
+
+// Mapper le hub SignalR
+app.MapHub<GestionRH.Hubs.NotificationHub>("/notificationHub");
 
 app.Run();

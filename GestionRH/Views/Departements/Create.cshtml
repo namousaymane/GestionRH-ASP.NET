@@ -1,0 +1,53 @@
+@model GestionRH.Models.Departement
+
+@{
+    ViewData["Title"] = "Créer un Département";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0"><i class="bi bi-building"></i> Nouveau Département</h4>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Create">
+                        <div asp-validation-summary="All" class="alert alert-danger" role="alert"></div>
+
+                        <div class="form-group mb-3">
+                            <label asp-for="Nom" class="control-label fw-bold">Nom du Département</label>
+                            <input asp-for="Nom" class="form-control" placeholder="Ex: Ressources Humaines" />
+                            <span asp-validation-for="Nom" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label asp-for="ChefId" class="control-label fw-bold">Responsable du Département</label>
+                            <select asp-for="ChefId" class="form-select" asp-items="ViewBag.Employes">
+                                <option value="">-- Sélectionner un responsable (optionnel) --</option>
+                            </select>
+                            <span asp-validation-for="ChefId" class="text-danger"></span>
+                            <small class="text-muted">Vous pouvez assigner un responsable plus tard.</small>
+                        </div>
+
+                        <div class="d-grid gap-2 mt-4">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="bi bi-check-circle"></i> Créer le Département
+                            </button>
+                            <a asp-action="Index" class="btn btn-secondary">Annuler</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
+
+
+

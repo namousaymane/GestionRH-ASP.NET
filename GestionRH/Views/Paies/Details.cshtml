@@ -38,23 +38,79 @@
                 <dt class="col-sm-3">Date d'émission</dt>
                 <dd class="col-sm-9">@Model.DateEmission.ToLongDateString()</dd>
 
-                @if (Model.Employe != null)
-                {
-                    <dt class="col-sm-3">Salaire de base</dt>
-                    <dd class="col-sm-9">@Model.Employe.Salaire.ToString("C")</dd>
-                }
             </dl>
+
+            <!-- Détails des lignes de paie -->
+            @if (Model.LignesPaie != null && Model.LignesPaie.Any())
+            {
+                <hr />
+                <h5 class="mb-3">Détail du calcul</h5>
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Libellé</th>
+                                <th class="text-end">Montant</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{
+                                decimal totalGains = 0;
+                                decimal totalRetenues = 0;
+                            }
+                            @foreach (var ligne in Model.LignesPaie.OrderBy(l => l.Ordre))
+                            {
+                                <tr class="@(ligne.Type == "Gain" ? "table-success" : "table-danger")">
+                                    <td>@ligne.Libelle</td>
+                                    <td class="text-end fw-bold">
+                                        @if (ligne.Type == "Gain")
+                                        {
+                                            <span class="text-success">+@ligne.Montant.ToString("C")</span>
+                                            totalGains += ligne.Montant;
+                                        }
+                                        else
+                                        {
+                                            <span class="text-danger">-@ligne.Montant.ToString("C")</span>
+                                            totalRetenues += ligne.Montant;
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                            <tr class="table-primary fw-bold">
+                                <td>NET À PAYER</td>
+                                <td class="text-end">@Model.Montant.ToString("C")</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else if (Model.Employe != null)
+            {
+                <hr />
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle"></i> Détails non disponibles. Salaire de base : <strong>@Model.Employe.Salaire.ToString("C")</strong>
+                </div>
+            }
 
             <div class="mt-4">
                 @{
                     var user = await UserManager.GetUserAsync(User);
                     if (user?.Role == "AdministrateurRH")
                     {
-                        <a asp-action="Edit" asp-route-id="@Model.IdPaie" class="btn btn-warning">Modifier</a>
-                        <a asp-action="Delete" asp-route-id="@Model.IdPaie" class="btn btn-danger">Supprimer</a>
+                        <a asp-action="Edit" asp-route-id="@Model.IdPaie" class="btn btn-warning">
+                            <i class="bi bi-pencil"></i> Modifier
+                        </a>
+                        <a asp-action="Delete" asp-route-id="@Model.IdPaie" class="btn btn-danger">
+                            <i class="bi bi-trash"></i> Supprimer
+                        </a>
                     }
                 }
-                <a asp-action="Index" class="btn btn-secondary">Retour à la liste</a>
+                <a asp-action="DownloadPdf" asp-route-id="@Model.IdPaie" class="btn btn-outline-danger">
+                    <i class="bi bi-file-pdf"></i> Télécharger PDF
+                </a>
+                <a asp-action="Index" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i> Retour à la liste
+                </a>
             </div>
         </div>
     </div>

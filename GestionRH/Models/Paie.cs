@@ -31,6 +31,9 @@ namespace GestionRH.Models
         [ForeignKey("EmployeId")]
         public virtual Employe Employe { get; set; }
 
+        // Relation avec LignesPaie
+        public virtual ICollection<LignePaie> LignesPaie { get; set; } = new List<LignePaie>();
+
         // Méthodes
         public decimal CalculerSalaire()
         {

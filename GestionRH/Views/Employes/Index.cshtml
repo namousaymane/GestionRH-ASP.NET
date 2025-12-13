@@ -6,58 +6,104 @@
 
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <h1><i class="bi bi-people-fill"></i> Liste des Employés</h1>
+        <h1>👥 Liste des Employés</h1>
         <a asp-action="Create" class="btn btn-primary">
             <i class="bi bi-plus-circle"></i> Nouvel Employé
         </a>
     </div>
 
-    <div class="card shadow-sm">
-        <div class="card-body p-0">
-            <table class="table table-hover mb-0">
-                <thead class="table-light">
-                    <tr>
-                        <th>Nom Complet</th>
-                        <th>Email</th>
-                        <th>Poste</th>
-                        <th>Salaire</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @if (!Model.Any())
-                    {
-                        <tr>
-                            <td colspan="5" class="text-center py-4 text-muted">Aucun employé trouvé.</td>
-                        </tr>
-                    }
-                    else
-                    {
-                        @foreach (var item in Model)
+    <!-- Formulaire de recherche et filtres -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-light">
+            <h5 class="mb-0"><i class="bi bi-funnel"></i> Recherche et Filtres</h5>
+        </div>
+        <div class="card-body">
+            <form method="get" asp-action="Index" class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label">Recherche</label>
+                    <input type="text" name="searchString" class="form-control" placeholder="Nom, prénom, email, poste..." value="@ViewBag.SearchString" />
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Département</label>
+                    <select name="departementFilter" class="form-select">
+                        <option value="">Tous</option>
+                        @foreach (var dept in ViewBag.Departements as List<GestionRH.Models.Departement> ?? new List<GestionRH.Models.Departement>())
                         {
-                            <tr>
-                                <td class="fw-bold">@item.NomComplet</td>
-                                <td>@item.Email</td>
-                                <td>@item.Poste</td>
-                                <td>@item.Salaire.ToString("C")</td>
-                                <td>
-                                    <div class="btn-group" role="group">
-                                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info text-white" title="Détails">
-                                            <i class="bi bi-eye"></i>
-                                        </a>
-                                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning" title="Modifier">
-                                            <i class="bi bi-pencil"></i>
-                                        </a>
-                                        <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger" title="Supprimer">
-                                            <i class="bi bi-trash"></i>
-                                        </a>
-                                    </div>
-                                </td>
-                            </tr>
+                            <option value="@dept.DepartementId" selected="@(ViewBag.DepartementFilter == dept.DepartementId.ToString())">@dept.Nom</option>
                         }
-                    }
-                </tbody>
-            </table>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Manager</label>
+                    <select name="managerFilter" class="form-select">
+                        <option value="">Tous</option>
+                        @foreach (var resp in ViewBag.Responsables as List<GestionRH.Models.Responsable> ?? new List<GestionRH.Models.Responsable>())
+                        {
+                            <option value="@resp.Id" selected="@(ViewBag.ManagerFilter == resp.Id)">@resp.NomComplet</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-search"></i> Rechercher
+                    </button>
+                </div>
+                @if (!string.IsNullOrEmpty(ViewBag.SearchString as string) || 
+                     !string.IsNullOrEmpty(ViewBag.DepartementFilter as string) ||
+                     !string.IsNullOrEmpty(ViewBag.ManagerFilter as string))
+                {
+                    <div class="col-12">
+                        <a asp-action="Index" class="btn btn-outline-secondary btn-sm">
+                            <i class="bi bi-x-circle"></i> Réinitialiser les filtres
+                        </a>
+                    </div>
+                }
+            </form>
         </div>
     </div>
+
+    <table class="table table-hover table-striped shadow-sm">
+        <thead class="table-dark">
+            <tr>
+                <th>Nom Complet</th>
+                <th>Email</th>
+                <th>Poste</th>
+                <th>Solde</th>
+                <th>Salaire</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (!Model.Any())
+            {
+                <tr>
+                    <td colspan="5" class="text-center">Aucun employé trouvé.</td>
+                </tr>
+            }
+            else
+            {
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.NomComplet</td>
+                        <td>@item.Email</td>
+                        <td>@item.Poste</td>
+                        <td>@item.SoldeConges j</td>
+                        <td>@item.Salaire.ToString("C")</td>
+                        <td>
+                            <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info text-white">
+                                <i class="bi bi-eye"></i> Détails
+                            </a>
+                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning">
+                                <i class="bi bi-pencil"></i> Modifier
+                            </a>
+                            <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger">
+                                <i class="bi bi-trash"></i> Supprimer
+                            </a>
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
 </div>

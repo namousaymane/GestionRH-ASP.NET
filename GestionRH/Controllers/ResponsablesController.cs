@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using GestionRH.Data;
 using GestionRH.Models;
+using GestionRH.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authorization;
 using System.Linq;
@@ -14,11 +15,13 @@ namespace GestionRH.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly UserManager<Utilisateur> _userManager;
+        private readonly NotificationService _notificationService;
 
-        public ResponsablesController(ApplicationDbContext context, UserManager<Utilisateur> userManager)
+        public ResponsablesController(ApplicationDbContext context, UserManager<Utilisateur> userManager, NotificationService notificationService)
         {
             _context = context;
             _userManager = userManager;
+            _notificationService = notificationService;
         }
 
         // GET: Responsables
@@ -100,6 +103,15 @@ namespace GestionRH.Controllers
                 
                 if (result.Succeeded)
                 {
+                    // Notifier le responsable créé
+                    await _notificationService.CreerNotificationAsync(
+                        responsable.Id,
+                        "Compte Responsable créé",
+                        $"Votre compte responsable a été créé avec succès. Vous pouvez maintenant vous connecter avec votre email : {responsable.Email}",
+                        "Responsable",
+                        "/Employes/MonProfil"
+                    );
+
                     return RedirectToAction(nameof(Index));
                 }
                 else
@@ -171,6 +183,15 @@ namespace GestionRH.Controllers
 
                     _context.Update(existingResponsable);
                     await _context.SaveChangesAsync();
+
+                    // Notifier le responsable des modifications
+                    await _notificationService.CreerNotificationAsync(
+                        existingResponsable.Id,
+                        "Profil mis à jour",
+                        "Vos informations ont été mises à jour par l'administrateur RH.",
+                        "Responsable",
+                        "/Employes/MonProfil"
+                    );
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -242,7 +263,24 @@ namespace GestionRH.Controllers
                 foreach (var employe in employesAvecManager)
                 {
                     employe.ManagerId = null;
+                    // Notifier les employés
+                    await _notificationService.CreerNotificationAsync(
+                        employe.Id,
+                        "Manager supprimé",
+                        $"Votre manager {responsable.NomComplet} n'est plus votre responsable.",
+                        "Responsable",
+                        null
+                    );
                 }
+
+                // Notifier le responsable
+                await _notificationService.CreerNotificationAsync(
+                    responsable.Id,
+                    "Compte supprimé",
+                    "Votre compte responsable a été supprimé du système.",
+                    "Responsable",
+                    null
+                );
 
                 _context.Responsables.Remove(responsable);
                 await _context.SaveChangesAsync();
@@ -257,4 +295,14 @@ namespace GestionRH.Controllers
         }
     }
 }
+
+
+
+
+
+
+
+
+
+
 

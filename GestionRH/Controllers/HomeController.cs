@@ -22,8 +22,13 @@ namespace GestionRH.Controllers
 
         public async Task<IActionResult> Index()
         {
+            // Si l'utilisateur n'est pas connecté, on affiche l'accueil public simple
+            if (!User.Identity.IsAuthenticated)
+            {
+                return View();
+            }
+
             var user = await _userManager.GetUserAsync(User);
-            
             if (user == null)
             {
                 return View();
@@ -66,6 +71,124 @@ namespace GestionRH.Controllers
             ViewBag.UserRole = user.Role;
             ViewBag.UserName = user.NomComplet;
             return View(stats);
+        }
+
+        // API pour les données des graphiques
+        [HttpGet]
+        public async Task<IActionResult> GetChartData()
+        {
+            if (!User.Identity.IsAuthenticated)
+            {
+                return Unauthorized();
+            }
+
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return Unauthorized();
+
+            var data = new
+            {
+                // Congés par mois (6 derniers mois)
+                congesParMois = await GetCongesParMois(user),
+                // Congés par statut
+                congesParStatut = await GetCongesParStatut(user),
+                // Congés par département (pour Admin)
+                congesParDepartement = user.Role == "AdministrateurRH" ? await GetCongesParDepartement() : null,
+                // Paies par mois (6 derniers mois)
+                paiesParMois = await GetPaiesParMois(user)
+            };
+
+            return Json(data);
+        }
+
+        private async Task<List<object>> GetCongesParMois(Utilisateur user)
+        {
+            var sixMoisAgo = DateTime.Now.AddMonths(-6);
+            IQueryable<Conge> query = _context.Conges.Where(c => c.DateDebut >= sixMoisAgo);
+
+            if (user.Role == "Responsable")
+            {
+                query = query.Where(c => c.Employe.ManagerId == user.Id || c.EmployeId == user.Id);
+            }
+            else if (user.Role == "Employe")
+            {
+                query = query.Where(c => c.EmployeId == user.Id);
+            }
+
+            var conges = await query.ToListAsync();
+            var result = new List<object>();
+
+            for (int i = 5; i >= 0; i--)
+            {
+                var mois = DateTime.Now.AddMonths(-i);
+                var count = conges.Count(c => c.DateDebut.Year == mois.Year && c.DateDebut.Month == mois.Month);
+                result.Add(new { mois = mois.ToString("MMM yyyy"), count });
+            }
+
+            return result;
+        }
+
+        private async Task<List<object>> GetCongesParStatut(Utilisateur user)
+        {
+            IQueryable<Conge> query = _context.Conges;
+
+            if (user.Role == "Responsable")
+            {
+                query = query.Where(c => c.Employe.ManagerId == user.Id || c.EmployeId == user.Id);
+            }
+            else if (user.Role == "Employe")
+            {
+                query = query.Where(c => c.EmployeId == user.Id);
+            }
+
+            var conges = await query.ToListAsync();
+            return new List<object>
+            {
+                new { statut = "En Attente", count = conges.Count(c => c.Statut == "EnAttente") },
+                new { statut = "Validés", count = conges.Count(c => c.Statut.Contains("Approuve")) },
+                new { statut = "Refusés", count = conges.Count(c => c.Statut.Contains("Rejete")) }
+            };
+        }
+
+        private async Task<List<object>> GetCongesParDepartement()
+        {
+            var conges = await _context.Conges
+                .Include(c => c.Employe)
+                .ThenInclude(e => e.Departement)
+                .Where(c => c.Employe.Departement != null)
+                .ToListAsync();
+
+            return conges
+                .GroupBy(c => c.Employe.Departement?.Nom ?? "Sans département")
+                .Select(g => new { departement = g.Key, count = g.Count() })
+                .Cast<object>()
+                .ToList();
+        }
+
+        private async Task<List<object>> GetPaiesParMois(Utilisateur user)
+        {
+            var sixMoisAgo = DateTime.Now.AddMonths(-6);
+            IQueryable<Paie> query = _context.Paies.Where(p => p.DateEmission >= sixMoisAgo);
+
+            if (user.Role == "Responsable")
+            {
+                query = query.Where(p => p.Employe.ManagerId == user.Id);
+            }
+            else if (user.Role == "Employe")
+            {
+                query = query.Where(p => p.EmployeId == user.Id);
+            }
+
+            var paies = await query.ToListAsync();
+            var result = new List<object>();
+
+            for (int i = 5; i >= 0; i--)
+            {
+                var mois = DateTime.Now.AddMonths(-i);
+                var count = paies.Count(p => p.DateEmission.Year == mois.Year && p.DateEmission.Month == mois.Month);
+                result.Add(new { mois = mois.ToString("MMM yyyy"), count });
+            }
+
+            return result;
         }
 
         public IActionResult Privacy()

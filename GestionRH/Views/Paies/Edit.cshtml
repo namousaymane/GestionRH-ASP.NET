@@ -18,9 +18,21 @@
 
                         <div class="form-group mb-3">
                             <label asp-for="EmployeId" class="control-label fw-bold">Employé</label>
-                            <select asp-for="EmployeId" class="form-select" asp-items="ViewBag.Employes">
-                                <option value="">-- Sélectionner un employé --</option>
-                            </select>
+                            @if (ViewBag.Employes == null || ((Microsoft.AspNetCore.Mvc.Rendering.SelectList)ViewBag.Employes).Count() == 0)
+                            {
+                                <div class="alert alert-warning">
+                                    <i class="bi bi-exclamation-triangle"></i> Aucun employé disponible.
+                                </div>
+                                <select asp-for="EmployeId" class="form-select" disabled>
+                                    <option value="@Model.EmployeId">@Model.Employe?.NomComplet</option>
+                                </select>
+                            }
+                            else
+                            {
+                                <select asp-for="EmployeId" class="form-select" asp-items="ViewBag.Employes">
+                                    <option value="">-- Sélectionner un employé --</option>
+                                </select>
+                            }
                             <span asp-validation-for="EmployeId" class="text-danger"></span>
                         </div>
 

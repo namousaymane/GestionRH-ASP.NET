@@ -98,6 +98,19 @@ else
                         </div>
                     </div>
                 </div>
+
+                <!-- Graphique en cercle pour Administrateur RH -->
+                <div class="col-md-12 mt-4">
+                    <div class="row justify-content-center">
+                        <div class="col-md-5">
+                            <div class="card shadow-sm border-0">
+                                <div class="card-body text-center">
+                                    <canvas id="congesParStatutChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             }
             else if (userRole == "Responsable")
             {
@@ -170,22 +183,13 @@ else
                     </div>
                 </div>
 
+                <!-- Graphique en cercle pour Responsable -->
                 <div class="col-md-12 mt-4">
-                    <div class="card shadow-sm">
-                        <div class="card-header bg-primary text-white">
-                            <h5 class="mb-0">Actions rapides</h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <a asp-controller="Conges" asp-action="Create" class="btn btn-primary btn-lg w-100 mb-2">
-                                        <i class="bi bi-calendar-plus"></i> Demander un congé
-                                    </a>
-                                </div>
-                                <div class="col-md-6">
-                                    <a asp-controller="Paies" asp-action="Index" class="btn btn-success btn-lg w-100 mb-2">
-                                        <i class="bi bi-wallet2"></i> Consulter mes paies
-                                    </a>
+                    <div class="row justify-content-center">
+                        <div class="col-md-5">
+                            <div class="card shadow-sm border-0">
+                                <div class="card-body text-center">
+                                    <canvas id="congesParStatutChart"></canvas>
                                 </div>
                             </div>
                         </div>
@@ -194,4 +198,145 @@ else
             }
         </div>
     </div>
+}
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            loadChartData();
+        });
+
+        async function loadChartData() {
+            try {
+                const response = await fetch('@Url.Action("GetChartData", "Home")');
+                const data = await response.json();
+
+                // Graphique : Congés par mois
+                if (data.congesParMois && data.congesParMois.length > 0) {
+                    const ctx1 = document.getElementById('congesParMoisChart');
+                    if (ctx1) {
+                        new Chart(ctx1, {
+                            type: 'line',
+                            data: {
+                                labels: data.congesParMois.map(item => item.mois),
+                                datasets: [{
+                                    label: 'Nombre de congés',
+                                    data: data.congesParMois.map(item => item.count),
+                                    borderColor: 'rgb(75, 192, 192)',
+                                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                                    tension: 0.1
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                plugins: {
+                                    title: {
+                                        display: true,
+                                        text: 'Évolution des congés (6 derniers mois)'
+                                    }
+                                }
+                            }
+                        });
+                    }
+                }
+
+                // Graphique : Congés par statut (camembert - mis en évidence)
+                if (data.congesParStatut && data.congesParStatut.length > 0) {
+                    const ctx2 = document.getElementById('congesParStatutChart');
+                    if (ctx2) {
+                        new Chart(ctx2, {
+                            type: 'doughnut',
+                            data: {
+                                labels: data.congesParStatut.map(item => item.statut),
+                                datasets: [{
+                                    data: data.congesParStatut.map(item => item.count),
+                                    backgroundColor: [
+                                        'rgba(255, 206, 86, 0.9)',
+                                        'rgba(75, 192, 192, 0.9)',
+                                        'rgba(255, 99, 132, 0.9)'
+                                    ],
+                                    borderWidth: 2,
+                                    borderColor: '#fff'
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: true,
+                                plugins: {
+                                    legend: {
+                                        position: 'bottom',
+                                        labels: {
+                                            padding: 15,
+                                            font: {
+                                                size: 12
+                                            }
+                                        }
+                                    },
+                                    tooltip: {
+                                        enabled: true
+                                    }
+                                }
+                            }
+                        });
+                    }
+                }
+
+                // Graphique : Congés par département (Admin seulement)
+                if (data.congesParDepartement && data.congesParDepartement.length > 0) {
+                    const ctx3 = document.getElementById('congesParDepartementChart');
+                    if (ctx3) {
+                        new Chart(ctx3, {
+                            type: 'bar',
+                            data: {
+                                labels: data.congesParDepartement.map(item => item.departement),
+                                datasets: [{
+                                    label: 'Nombre de congés',
+                                    data: data.congesParDepartement.map(item => item.count),
+                                    backgroundColor: 'rgba(54, 162, 235, 0.8)'
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                plugins: {
+                                    title: {
+                                        display: true,
+                                        text: 'Congés par département'
+                                    }
+                                }
+                            }
+                        });
+                    }
+                }
+
+                // Graphique : Paies par mois
+                if (data.paiesParMois && data.paiesParMois.length > 0) {
+                    const ctx4 = document.getElementById('paiesParMoisChart');
+                    if (ctx4) {
+                        new Chart(ctx4, {
+                            type: 'bar',
+                            data: {
+                                labels: data.paiesParMois.map(item => item.mois),
+                                datasets: [{
+                                    label: 'Nombre de paies',
+                                    data: data.paiesParMois.map(item => item.count),
+                                    backgroundColor: 'rgba(75, 192, 192, 0.8)'
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                plugins: {
+                                    title: {
+                                        display: true,
+                                        text: 'Paies par mois (6 derniers mois)'
+                                    }
+                                }
+                            }
+                        });
+                    }
+                }
+            } catch (error) {
+                console.error('Erreur lors du chargement des graphiques:', error);
+            }
+        }
+    </script>
 }

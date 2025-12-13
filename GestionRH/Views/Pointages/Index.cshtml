@@ -1,0 +1,246 @@
+@model IEnumerable<GestionRH.Models.Pointage>
+@using Microsoft.AspNetCore.Identity
+@using GestionRH.Models
+@inject UserManager<Utilisateur> UserManager
+
+@{
+    ViewData["Title"] = "Gestion des Pointages";
+    var currentUser = await UserManager.GetUserAsync(User);
+    var userRole = currentUser?.Role;
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1><i class="bi bi-clock-history"></i> @ViewData["Title"]</h1>
+        <div>
+            @if (userRole == "Employe")
+            {
+                <button id="pointageDepartBtn" class="btn btn-warning me-2" style="display: none;">
+                    <i class="bi bi-box-arrow-right"></i> Pointer le départ
+                </button>
+            }
+            <a asp-action="Create" class="btn btn-primary">
+                <i class="bi bi-plus-lg"></i> 
+                @if (userRole == "Employe")
+                {
+                    <text>Pointer l'arrivée</text>
+                }
+                else
+                {
+                    <text>Nouveau Pointage</text>
+                }
+            </a>
+        </div>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle"></i> @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (TempData["Message"] != null)
+    {
+        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle"></i> @TempData["Message"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <!-- Formulaire de recherche et filtres -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-light">
+            <h5 class="mb-0"><i class="bi bi-funnel"></i> Recherche et Filtres</h5>
+        </div>
+        <div class="card-body">
+            <form method="get" asp-action="Index" class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label">Recherche</label>
+                    <input type="text" name="searchString" class="form-control" placeholder="Nom, prénom..." value="@ViewBag.SearchString" />
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Date début</label>
+                    <input type="date" name="dateDebut" class="form-control" value="@ViewBag.DateDebut" />
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Date fin</label>
+                    <input type="date" name="dateFin" class="form-control" value="@ViewBag.DateFin" />
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-search"></i> Rechercher
+                    </button>
+                </div>
+                @if (!string.IsNullOrEmpty(ViewBag.SearchString as string) || 
+                     !string.IsNullOrEmpty(ViewBag.DateDebut as string) ||
+                     !string.IsNullOrEmpty(ViewBag.DateFin as string))
+                {
+                    <div class="col-12">
+                        <a asp-action="Index" class="btn btn-outline-secondary btn-sm">
+                            <i class="bi bi-x-circle"></i> Réinitialiser les filtres
+                        </a>
+                    </div>
+                }
+            </form>
+        </div>
+    </div>
+
+    <!-- Tableau des pointages -->
+    <div class="card shadow-sm">
+        <div class="card-body p-0">
+            @if (!Model.Any())
+            {
+                <div class="text-center py-5">
+                    <i class="bi bi-clock-history display-1 text-muted"></i>
+                    <p class="text-muted mt-3">Aucun pointage enregistré</p>
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                @if (userRole == "AdministrateurRH" || userRole == "Responsable")
+                                {
+                                    <th>Employé</th>
+                                }
+                                <th>Date</th>
+                                <th>Heure d'arrivée</th>
+                                <th>Heure de départ</th>
+                                <th>Durée de travail</th>
+                                <th>Heures supplémentaires</th>
+                                <th>Statut</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var pointage in Model)
+                            {
+                                <tr>
+                                    @if (userRole == "AdministrateurRH" || userRole == "Responsable")
+                                    {
+                                        <td>
+                                            <strong>@pointage.Employe.NomComplet</strong><br>
+                                            <small class="text-muted">@pointage.Employe.Poste</small>
+                                        </td>
+                                    }
+                                    <td>@pointage.DatePointage.ToString("dd/MM/yyyy")</td>
+                                    <td>
+                                        @if (pointage.HeureArrivee.HasValue)
+                                        {
+                                            <span class="badge bg-success">@pointage.HeureArrivee.Value.ToString("HH:mm")</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">-</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (pointage.HeureDepart.HasValue)
+                                        {
+                                            <span class="badge bg-danger">@pointage.HeureDepart.Value.ToString("HH:mm")</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">-</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (pointage.DureeTravail.HasValue)
+                                        {
+                                            var heures = (int)pointage.DureeTravail.Value.TotalHours;
+                                            var minutes = pointage.DureeTravail.Value.Minutes;
+                                            <span>@heures h @minutes min</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">-</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (pointage.HeuresSupplementaires.HasValue && pointage.HeuresSupplementaires.Value > 0)
+                                        {
+                                            <span class="badge bg-warning text-dark">@pointage.HeuresSupplementaires.Value.ToString("F2") h</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">-</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (pointage.EstAbsent)
+                                        {
+                                            <span class="badge bg-danger">Absent</span>
+                                        }
+                                        else if (pointage.HeureArrivee.HasValue && pointage.HeureDepart.HasValue)
+                                        {
+                                            <span class="badge bg-success">Complet</span>
+                                        }
+                                        else if (pointage.HeureArrivee.HasValue)
+                                        {
+                                            <span class="badge bg-warning text-dark">En cours</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary">Non pointé</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (!string.IsNullOrEmpty(pointage.Remarques))
+                                        {
+                                            <button type="button" class="btn btn-sm btn-outline-info" data-bs-toggle="tooltip" data-bs-placement="top" title="@pointage.Remarques">
+                                                <i class="bi bi-info-circle"></i>
+                                            </button>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Vérifier si l'utilisateur peut pointer le départ
+                @if (userRole == "Employe")
+            {
+                <text>
+                // Vérifier s'il y a un pointage d'arrivée aujourd'hui sans départ
+                var hasArrivalToday = @Html.Raw(Json.Serialize(Model != null && Model.Any(p => p.DatePointage.Date == DateTime.Today && p.HeureArrivee.HasValue && !p.HeureDepart.HasValue)));
+                
+                if (hasArrivalToday) {
+                    $('#pointageDepartBtn').show();
+                }
+                </text>
+            }
+
+            // Gérer le pointage de départ
+            $('#pointageDepartBtn').click(function() {
+                $.post('@Url.Action("PointageDepart", "Pointages")', function(data) {
+                    if (data.success) {
+                        location.reload();
+                    } else {
+                        alert(data.message);
+                    }
+                }).fail(function() {
+                    alert('Erreur lors de l\'enregistrement du pointage de départ');
+                });
+            });
+
+            // Initialiser les tooltips Bootstrap
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+        });
+    </script>
+}
+

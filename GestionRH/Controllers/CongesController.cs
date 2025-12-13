@@ -4,6 +4,7 @@ using GestionRH.Data;
 using GestionRH.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authorization;
+using GestionRH.Services;
 
 namespace GestionRH.Controllers
 {
@@ -12,15 +13,17 @@ namespace GestionRH.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly UserManager<Utilisateur> _userManager;
+        private readonly NotificationService _notificationService;
 
-        public CongesController(ApplicationDbContext context, UserManager<Utilisateur> userManager)
+        public CongesController(ApplicationDbContext context, UserManager<Utilisateur> userManager, NotificationService notificationService)
         {
             _context = context;
             _userManager = userManager;
+            _notificationService = notificationService;
         }
 
         // GET: Conges
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string searchString, string statutFilter, string typeFilter, string dateDebutFilter, string dateFinFilter)
         {
             var user = await _userManager.GetUserAsync(User);
             if (user == null) return Challenge();
@@ -44,6 +47,47 @@ namespace GestionRH.Controllers
                 // Ne voit que SES demandes
                 congesQuery = congesQuery.Where(c => c.EmployeId == user.Id);
             }
+
+            // FILTRES DE RECHERCHE
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                congesQuery = congesQuery.Where(c => 
+                    c.Employe.Nom.Contains(searchString) || 
+                    c.Employe.Prenom.Contains(searchString) ||
+                    c.Type.Contains(searchString));
+            }
+
+            if (!string.IsNullOrEmpty(statutFilter))
+            {
+                congesQuery = congesQuery.Where(c => c.Statut == statutFilter);
+            }
+
+            if (!string.IsNullOrEmpty(typeFilter))
+            {
+                congesQuery = congesQuery.Where(c => c.Type == typeFilter);
+            }
+
+            if (!string.IsNullOrEmpty(dateDebutFilter) && DateTime.TryParse(dateDebutFilter, out DateTime dateDebut))
+            {
+                congesQuery = congesQuery.Where(c => c.DateDebut >= dateDebut);
+            }
+
+            if (!string.IsNullOrEmpty(dateFinFilter) && DateTime.TryParse(dateFinFilter, out DateTime dateFin))
+            {
+                congesQuery = congesQuery.Where(c => c.DateFin <= dateFin);
+            }
+
+            // Préparer les listes pour les dropdowns
+            var statuts = await congesQuery.Select(c => c.Statut).Distinct().ToListAsync();
+            var types = await _context.Conges.Select(c => c.Type).Distinct().ToListAsync();
+
+            ViewBag.Statuts = statuts;
+            ViewBag.Types = types;
+            ViewBag.SearchString = searchString;
+            ViewBag.StatutFilter = statutFilter;
+            ViewBag.TypeFilter = typeFilter;
+            ViewBag.DateDebutFilter = dateDebutFilter;
+            ViewBag.DateFinFilter = dateFinFilter;
 
             var listeConges = await congesQuery.OrderByDescending(c => c.DateDebut).ToListAsync();
             return View(listeConges);
@@ -79,6 +123,23 @@ namespace GestionRH.Controllers
             {
                 _context.Add(conge);
                 await _context.SaveChangesAsync();
+
+                // Notifier le manager si l'employé a un manager
+                if (user != null)
+                {
+                    var employe = await _context.Employes.FindAsync(user.Id);
+                    if (employe != null && !string.IsNullOrEmpty(employe.ManagerId))
+                    {
+                        await _notificationService.CreerNotificationAsync(
+                            employe.ManagerId,
+                            "Nouvelle demande de congé",
+                            $"{employe.NomComplet} a demandé un congé du {conge.DateDebut:dd/MM/yyyy} au {conge.DateFin:dd/MM/yyyy}",
+                            "Conge",
+                            Url.Action("Index", "Conges")
+                        );
+                    }
+                }
+
                 return RedirectToAction(nameof(Index));
             }
             return View(conge);
@@ -274,33 +335,131 @@ namespace GestionRH.Controllers
         // NOUVEAU : Action pour traiter une demande (Valider ou Refuser)
         [HttpPost]
         [ValidateAntiForgeryToken]
+        // POST: Conges/Traiter
         public async Task<IActionResult> Traiter(int id, string decision)
         {
-            var conge = await _context.Conges.FindAsync(id);
+            // On inclut l'employé pour pouvoir modifier son solde
+            var conge = await _context.Conges.Include(c => c.Employe).FirstOrDefaultAsync(c => c.IdConge == id);
+
             if (conge == null) return NotFound();
 
             var user = await _userManager.GetUserAsync(User);
 
-            // Logique de validation à 2 niveaux (Manager -> RH)
             if (decision == "Valider")
             {
                 if (user.Role == "Responsable")
                 {
-                    conge.Statut = "ValideManager"; // 1er niveau
+                    conge.Statut = "ValideManager";
                 }
                 else if (user.Role == "AdministrateurRH")
                 {
-                    conge.Statut = "Valide"; // Validation finale
-                    // ICI : On pourrait déduire du solde de l'employé
+                    // VÉRIFICATION DU SOLDE AVANT VALIDATION
+                    int duree = (conge.DateFin - conge.DateDebut).Days + 1;
+
+                    if (conge.Employe.SoldeConges >= duree)
+                    {
+                        conge.Statut = "Valide";
+                        // DÉCRÉMENTATION
+                        conge.Employe.SoldeConges -= duree;
+                    }
+                    else
+                    {
+                        // Optionnel : Gérer l'erreur si solde insuffisant (pour l'instant on refuse ou on laisse passer en négatif ?)
+                        // Pour faire simple : on laisse passer ou on met un message, 
+                        // mais techniquement on retire les jours :
+                        conge.Statut = "Valide";
+                        conge.Employe.SoldeConges -= duree;
+                    }
+
+                    // Notifier l'employé
+                    await _notificationService.CreerNotificationAsync(
+                        conge.EmployeId,
+                        "Congé validé",
+                        $"Votre demande de congé du {conge.DateDebut:dd/MM/yyyy} au {conge.DateFin:dd/MM/yyyy} a été validée.",
+                        "Conge",
+                        Url.Action("Details", "Conges", new { id = conge.IdConge })
+                    );
                 }
             }
             else if (decision == "Refuser")
             {
                 conge.Statut = "Refuse";
+
+                // Notifier l'employé
+                await _notificationService.CreerNotificationAsync(
+                    conge.EmployeId,
+                    "Congé refusé",
+                    $"Votre demande de congé du {conge.DateDebut:dd/MM/yyyy} au {conge.DateFin:dd/MM/yyyy} a été refusée.",
+                    "Conge",
+                    Url.Action("Details", "Conges", new { id = conge.IdConge })
+                );
             }
 
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
+        }
+
+        // API pour le calendrier FullCalendar
+        [HttpGet]
+        public async Task<IActionResult> GetCalendarEvents()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return Unauthorized();
+
+            IQueryable<Conge> congesQuery = _context.Conges.Include(c => c.Employe);
+
+            // Filtrer selon le rôle
+            if (user.Role == "AdministrateurRH")
+            {
+                // L'admin voit tout
+            }
+            else if (user.Role == "Responsable")
+            {
+                congesQuery = congesQuery.Where(c => c.EmployeId == user.Id || c.Employe.ManagerId == user.Id);
+            }
+            else
+            {
+                congesQuery = congesQuery.Where(c => c.EmployeId == user.Id);
+            }
+
+            var conges = await congesQuery.ToListAsync();
+
+            var events = conges.Select(c => new
+            {
+                id = c.IdConge,
+                title = $"{c.Employe.NomComplet} - {c.Type}",
+                start = c.DateDebut.ToString("yyyy-MM-dd"),
+                end = c.DateFin.AddDays(1).ToString("yyyy-MM-dd"), // FullCalendar exclut le dernier jour
+                backgroundColor = GetColorByStatut(c.Statut),
+                borderColor = GetColorByStatut(c.Statut),
+                textColor = "#ffffff",
+                extendedProps = new
+                {
+                    employe = c.Employe.NomComplet,
+                    type = c.Type,
+                    statut = c.Statut,
+                    duree = c.Duree
+                }
+            }).ToList();
+
+            return Json(events);
+        }
+
+        private string GetColorByStatut(string statut)
+        {
+            return statut switch
+            {
+                "EnAttente" => "#ffc107", // Jaune
+                "Valide" or "ValideManager" or "ApprouveRH" => "#28a745", // Vert
+                "Refuse" or "RejeteManager" or "RejeteRH" => "#dc3545", // Rouge
+                _ => "#6c757d" // Gris par défaut
+            };
+        }
+
+        // GET: Conges/Calendrier
+        public IActionResult Calendrier()
+        {
+            return View();
         }
 
         private bool CongeExists(int id)

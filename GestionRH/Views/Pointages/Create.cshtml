@@ -1,0 +1,116 @@
+@model GestionRH.Models.Pointage
+@using Microsoft.AspNetCore.Identity
+@using GestionRH.Models
+@inject UserManager<Utilisateur> UserManager
+
+@{
+    ViewData["Title"] = "Nouveau Pointage";
+    var currentUser = await UserManager.GetUserAsync(User);
+    var userRole = currentUser?.Role;
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0"><i class="bi bi-clock-history"></i> Nouveau Pointage</h4>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Create" method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                        @if (userRole == "AdministrateurRH" || userRole == "Responsable")
+                        {
+                            <div class="form-group mb-3">
+                                <label asp-for="EmployeId" class="control-label fw-bold">Employé</label>
+                                <select asp-for="EmployeId" class="form-select" asp-items="ViewBag.Employes" required>
+                                    <option value="">-- Sélectionner un employé --</option>
+                                </select>
+                                <span asp-validation-for="EmployeId" class="text-danger"></span>
+                            </div>
+                        }
+                        else
+                        {
+                            <input type="hidden" asp-for="EmployeId" value="@currentUser.Id" />
+                        }
+
+                        <div class="form-group mb-3">
+                            <label asp-for="DatePointage" class="control-label fw-bold">Date de pointage</label>
+                            <input asp-for="DatePointage" class="form-control" type="date" value="@DateTime.Today.ToString("yyyy-MM-dd")" />
+                            <span asp-validation-for="DatePointage" class="text-danger"></span>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 form-group mb-3">
+                                <label asp-for="HeureArrivee" class="control-label fw-bold">Heure d'arrivée</label>
+                                <input asp-for="HeureArrivee" class="form-control" type="time" />
+                                <span asp-validation-for="HeureArrivee" class="text-danger"></span>
+                                <small class="text-muted">Laissez vide si l'employé est absent</small>
+                            </div>
+
+                            <div class="col-md-6 form-group mb-3">
+                                <label asp-for="HeureDepart" class="control-label fw-bold">Heure de départ</label>
+                                <input asp-for="HeureDepart" class="form-control" type="time" />
+                                <span asp-validation-for="HeureDepart" class="text-danger"></span>
+                                <small class="text-muted">Optionnel - peut être rempli plus tard</small>
+                            </div>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <div class="form-check">
+                                <input asp-for="EstAbsent" class="form-check-input" type="checkbox" />
+                                <label asp-for="EstAbsent" class="form-check-label fw-bold">
+                                    Marquer comme absent
+                                </label>
+                            </div>
+                            <small class="text-muted">Cochez cette case si l'employé est absent ce jour</small>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label asp-for="Remarques" class="control-label fw-bold">Remarques</label>
+                            <textarea asp-for="Remarques" class="form-control" rows="3" placeholder="Notes optionnelles..."></textarea>
+                            <span asp-validation-for="Remarques" class="text-danger"></span>
+                        </div>
+
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle"></i> <strong>Note :</strong> La durée de travail et les heures supplémentaires seront calculées automatiquement si les heures d'arrivée et de départ sont renseignées.
+                        </div>
+
+                        <div class="d-grid gap-2 mt-4">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="bi bi-check-circle"></i> Enregistrer le pointage
+                            </button>
+                            <a asp-action="Index" class="btn btn-light">Annuler</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+    <script>
+        $(document).ready(function() {
+            // Si "EstAbsent" est coché, désactiver les champs d'heures
+            $('#EstAbsent').change(function() {
+                if ($(this).is(':checked')) {
+                    $('#HeureArrivee, #HeureDepart').prop('disabled', true).val('');
+                } else {
+                    $('#HeureArrivee, #HeureDepart').prop('disabled', false);
+                }
+            });
+
+            // Si une heure d'arrivée est saisie, désactiver "EstAbsent"
+            $('#HeureArrivee').change(function() {
+                if ($(this).val()) {
+                    $('#EstAbsent').prop('checked', false);
+                }
+            });
+        });
+    </script>
+}
+

@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GestionRH.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20251209233042_AddManagerId")]
-    partial class AddManagerId
+    [Migration("20251213195752_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -60,6 +60,148 @@ namespace GestionRH.Migrations
                     b.ToTable("Conges");
                 });
 
+            modelBuilder.Entity("GestionRH.Models.Contrat", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("DateDebut")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime?>("DateFin")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)");
+
+                    b.Property<string>("EmployeId")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<bool>("EstActif")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<string>("FichierContrat")
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)");
+
+                    b.Property<decimal>("SalaireBrut")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("TypeContrat")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EmployeId", "EstActif");
+
+                    b.ToTable("Contrats");
+                });
+
+            modelBuilder.Entity("GestionRH.Models.Departement", b =>
+                {
+                    b.Property<int>("DepartementId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<string>("ChefId")
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<string>("Nom")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.HasKey("DepartementId");
+
+                    b.HasIndex("ChefId");
+
+                    b.ToTable("Departements");
+                });
+
+            modelBuilder.Entity("GestionRH.Models.LignePaie", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<string>("Libelle")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<decimal>("Montant")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("Ordre")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PaieId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("PaieIdPaie")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PaieId");
+
+                    b.HasIndex("PaieIdPaie");
+
+                    b.ToTable("LignesPaie");
+                });
+
+            modelBuilder.Entity("GestionRH.Models.Notification", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("DateCreation")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<bool>("EstLue")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<string>("LienAction")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)");
+
+                    b.Property<string>("Titre")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId", "EstLue");
+
+                    b.ToTable("Notifications");
+                });
+
             modelBuilder.Entity("GestionRH.Models.Paie", b =>
                 {
                     b.Property<int>("IdPaie")
@@ -89,6 +231,46 @@ namespace GestionRH.Migrations
                     b.HasIndex("Mois");
 
                     b.ToTable("Paies");
+                });
+
+            modelBuilder.Entity("GestionRH.Models.Pointage", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("DatePointage")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<TimeSpan?>("DureeTravail")
+                        .HasColumnType("time(6)");
+
+                    b.Property<string>("EmployeId")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<bool>("EstAbsent")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<DateTime?>("HeureArrivee")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime?>("HeureDepart")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<decimal?>("HeuresSupplementaires")
+                        .HasColumnType("decimal(65,30)");
+
+                    b.Property<string>("Remarques")
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EmployeId", "DatePointage");
+
+                    b.ToTable("Pointages");
                 });
 
             modelBuilder.Entity("GestionRH.Models.Utilisateur", b =>
@@ -329,6 +511,9 @@ namespace GestionRH.Migrations
                 {
                     b.HasBaseType("GestionRH.Models.Utilisateur");
 
+                    b.Property<int?>("DepartementId")
+                        .HasColumnType("int");
+
                     b.Property<string>("ManagerId")
                         .HasColumnType("longtext");
 
@@ -339,6 +524,11 @@ namespace GestionRH.Migrations
 
                     b.Property<decimal>("Salaire")
                         .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("SoldeConges")
+                        .HasColumnType("int");
+
+                    b.HasIndex("DepartementId");
 
                     b.HasDiscriminator().HasValue("Employe");
                 });
@@ -361,10 +551,68 @@ namespace GestionRH.Migrations
                     b.Navigation("Employe");
                 });
 
+            modelBuilder.Entity("GestionRH.Models.Contrat", b =>
+                {
+                    b.HasOne("GestionRH.Models.Employe", "Employe")
+                        .WithMany()
+                        .HasForeignKey("EmployeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Employe");
+                });
+
+            modelBuilder.Entity("GestionRH.Models.Departement", b =>
+                {
+                    b.HasOne("GestionRH.Models.Employe", "Chef")
+                        .WithMany()
+                        .HasForeignKey("ChefId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("Chef");
+                });
+
+            modelBuilder.Entity("GestionRH.Models.LignePaie", b =>
+                {
+                    b.HasOne("GestionRH.Models.Paie", "Paie")
+                        .WithMany()
+                        .HasForeignKey("PaieId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("GestionRH.Models.Paie", null)
+                        .WithMany("LignesPaie")
+                        .HasForeignKey("PaieIdPaie");
+
+                    b.Navigation("Paie");
+                });
+
+            modelBuilder.Entity("GestionRH.Models.Notification", b =>
+                {
+                    b.HasOne("GestionRH.Models.Utilisateur", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("GestionRH.Models.Paie", b =>
                 {
                     b.HasOne("GestionRH.Models.Employe", "Employe")
                         .WithMany("Paies")
+                        .HasForeignKey("EmployeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Employe");
+                });
+
+            modelBuilder.Entity("GestionRH.Models.Pointage", b =>
+                {
+                    b.HasOne("GestionRH.Models.Employe", "Employe")
+                        .WithMany()
                         .HasForeignKey("EmployeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -421,6 +669,26 @@ namespace GestionRH.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("GestionRH.Models.Employe", b =>
+                {
+                    b.HasOne("GestionRH.Models.Departement", "Departement")
+                        .WithMany("Employes")
+                        .HasForeignKey("DepartementId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("Departement");
+                });
+
+            modelBuilder.Entity("GestionRH.Models.Departement", b =>
+                {
+                    b.Navigation("Employes");
+                });
+
+            modelBuilder.Entity("GestionRH.Models.Paie", b =>
+                {
+                    b.Navigation("LignesPaie");
                 });
 
             modelBuilder.Entity("GestionRH.Models.Employe", b =>
