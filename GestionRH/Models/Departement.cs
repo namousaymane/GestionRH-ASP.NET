@@ -17,7 +17,7 @@ namespace GestionRH.Models
         public string? ChefId { get; set; }
 
         [ForeignKey("ChefId")]
-        public virtual Employe? Chef { get; set; }
+        public virtual Utilisateur? Chef { get; set; }
 
         // Liste des employés dans ce département
         public virtual ICollection<Employe> Employes { get; set; } = new List<Employe>();

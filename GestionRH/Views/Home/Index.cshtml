@@ -11,30 +11,30 @@
 @if (user == null)
 {
     <div class="hero-landing-wrapper fade-in d-flex align-items-center justify-content-center" style="min-height: 85vh;">
-        <div class="text-center p-5">
+        <div class="text-center p-5 animate-pop"> <!-- Removed glass-card -->
             <div class="mb-4">
-                 <div class="d-inline-flex align-items-center justify-content-center p-4 mb-3" style="width: 100px; height: 100px;">
+                 <div class="d-inline-flex align-items-center justify-content-center p-4 mb-3 animate-float" style="width: 100px; height: 100px;">
                     <i class="bi bi-diagram-3-fill display-3 text-white"></i>
                  </div>
             </div>
             
-            <h1 class="display-3 fw-bold mb-3 text-white">Bienvenue sur <span class="text-primary">GestionRH</span></h1>
-            <p class="lead text-white-50 mb-5 mx-auto" style="max-width: 600px;">
+            <h1 class="display-3 fw-bold mb-3 text-white animate-slide-up">Bienvenue sur <span class="text-shimmer">GestionRH</span></h1>
+            <p class="lead text-white-50 mb-5 mx-auto animate-slide-up delay-1" style="max-width: 600px;">
                 La plateforme centralisée pour la gestion de votre capital humain. 
                 <br>Connectez-vous pour accéder à votre espace.
             </p>
 
-            <div class="d-flex gap-3 justify-content-center">
-                <a asp-area="Identity" asp-page="/Account/Login" class="btn btn-primary btn-lg px-5 py-3 fs-5 fw-bold shadow-sm rounded-pill hover-scale">
+            <div class="d-flex gap-3 justify-content-center animate-pop delay-2">
+                <a asp-area="Identity" asp-page="/Account/Login" class="btn btn-primary btn-lg px-5 py-3 fs-5 fw-bold shadow-sm rounded-pill hover-glow animate-pulse-glow">
                     <i class="bi bi-box-arrow-in-right me-2"></i> Se connecter
                 </a>
-                <a asp-area="Identity" asp-page="/Account/Register" class="btn btn-outline-primary btn-lg px-5 py-3 fs-5 fw-bold rounded-pill hover-scale">
+                <a asp-area="Identity" asp-page="/Account/Register" class="btn btn-outline-primary btn-lg px-5 py-3 fs-5 fw-bold rounded-pill hover-glow"> <!-- Reverted to btn-outline-primary -->
                     <i class="bi bi-person-plus me-2"></i> Créer un compte
                 </a>
             </div>
 
-            <div class="mt-5 pt-5 opacity-50">
-                <small>&copy; @DateTime.Now.Year - GestionRH Enterprise</small>
+            <div class="mt-5 pt-5 opacity-50 animate-slide-up delay-3">
+                <small class="text-white-50">&copy; @DateTime.Now.Year - GestionRH Enterprise</small>
             </div>
         </div>
     </div>

@@ -623,17 +623,17 @@ body:has(.auth-page-wrapper) .container {
   }
 
   50% {
-    transform: translateY(-5px);
+    transform: translateY(-10px);
   }
 }
 
 @keyframes typing {
   from {
-    width: 0;
+    width: 0
   }
 
   to {
-    width: 100%;
+    width: 100%
   }
 }
 
@@ -647,26 +647,31 @@ body:has(.auth-page-wrapper) .container {
   }
 }
 
+@keyframes blink-caret {
+
+  from,
+  to {
+    border-color: transparent
+  }
+
+  50% {
+    border-color: var(--primary-color);
+  }
+}
+
 .animated-logo-icon {
-  display: inline-block;
   animation: logoBounce 2s infinite ease-in-out;
+  display: inline-block;
 }
 
 .animated-logo-text {
-  display: inline-block;
   overflow: hidden;
+  border-right: .15em solid var(--primary-color);
   white-space: nowrap;
-  border-right: 2px solid var(--primary-color);
-  /* Cursor effect */
-  width: 0;
+  margin: 0 auto;
   animation:
-    typing 2s steps(10, end) forwards,
-    fadeIn 0.5s ease-out forwards;
-  animation-delay: 0.5s;
-  /* Wait for layout */
-  vertical-align: middle;
-  max-width: 100%;
-  /* Ensure it takes space */
+    typing 3.5s steps(40, end),
+    blink-caret .75s step-end infinite;
 }
 
 /* Remove cursor after typing */

@@ -92,8 +92,13 @@ namespace GestionRH.Controllers
             }
 
             // Charger la liste des employés pour le dropdown Chef
+            // Charger la liste des employés et responsables pour le dropdown Chef
+            var eligibleChefs = await _context.Users
+                .Where(u => u.Role == "Employe" || u.Role == "Responsable")
+                .ToListAsync();
+
             ViewBag.Employes = new SelectList(
-                await _context.Employes.ToListAsync(),
+                eligibleChefs,
                 "Id",
                 "NomComplet"
             );
@@ -121,10 +126,10 @@ namespace GestionRH.Controllers
             // Vérifier si le ChefId existe si fourni
             if (!string.IsNullOrEmpty(departement.ChefId))
             {
-                var chefExists = await _context.Employes.AnyAsync(e => e.Id == departement.ChefId);
+                var chefExists = await _context.Users.AnyAsync(e => e.Id == departement.ChefId);
                 if (!chefExists)
                 {
-                    ModelState.AddModelError("ChefId", "L'employé sélectionné n'existe pas.");
+                    ModelState.AddModelError("ChefId", "L'utilisateur sélectionné n'existe pas.");
                 }
             }
 
@@ -160,8 +165,13 @@ namespace GestionRH.Controllers
             }
 
             // Recharger la liste des employés en cas d'erreur
+            // Recharger la liste des utilisateurs en cas d'erreur
+            var eligibleChefs = await _context.Users
+                .Where(u => u.Role == "Employe" || u.Role == "Responsable")
+                .ToListAsync();
+
             ViewBag.Employes = new SelectList(
-                await _context.Employes.ToListAsync(),
+                eligibleChefs,
                 "Id",
                 "NomComplet",
                 departement.ChefId
@@ -191,8 +201,13 @@ namespace GestionRH.Controllers
             }
 
             // Charger la liste des employés pour le dropdown Chef
+            // Charger la liste des employés et responsables pour le dropdown Chef
+            var eligibleChefs = await _context.Users
+                .Where(u => u.Role == "Employe" || u.Role == "Responsable")
+                .ToListAsync();
+
             ViewBag.Employes = new SelectList(
-                await _context.Employes.ToListAsync(),
+                eligibleChefs,
                 "Id",
                 "NomComplet",
                 departement.ChefId
@@ -275,9 +290,13 @@ namespace GestionRH.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            // Recharger la liste des employés en cas d'erreur
+            // Recharger la liste des utilisateurs en cas d'erreur
+            var eligibleChefs = await _context.Users
+                .Where(u => u.Role == "Employe" || u.Role == "Responsable")
+                .ToListAsync();
+
             ViewBag.Employes = new SelectList(
-                await _context.Employes.ToListAsync(),
+                eligibleChefs,
                 "Id",
                 "NomComplet",
                 departement.ChefId

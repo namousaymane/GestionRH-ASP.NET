@@ -176,6 +176,5 @@ namespace GestionRH.Data
                 .HasForeignKey(d => d.ChefId)
                 .OnDelete(DeleteBehavior.SetNull); // Si le chef part, le département n'a plus de chef
         }
-
     }
 }
