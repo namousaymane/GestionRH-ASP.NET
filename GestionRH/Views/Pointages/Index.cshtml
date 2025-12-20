@@ -113,6 +113,7 @@
                                 <th>Durée de travail</th>
                                 <th>Heures supplémentaires</th>
                                 <th>Statut</th>
+                                <th>Remarques</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -195,6 +196,26 @@
                                                 <i class="bi bi-info-circle"></i>
                                             </button>
                                         }
+                                        else
+                                        {
+                                            <span class="text-muted">-</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <div class="d-flex justify-content-start">
+                                            <a asp-action="Details" asp-route-id="@pointage.Id" class="btn-icon btn-icon-info me-2" title="Détails">
+                                                <i class="bi bi-eye"></i>
+                                            </a>
+                                            @if (userRole == "AdministrateurRH")
+                                            {
+                                                <a asp-action="Edit" asp-route-id="@pointage.Id" class="btn-icon btn-icon-warning me-2" title="Modifier">
+                                                    <i class="bi bi-pencil"></i>
+                                                </a>
+                                                <a asp-action="Delete" asp-route-id="@pointage.Id" class="btn-icon btn-icon-danger" title="Supprimer">
+                                                    <i class="bi bi-trash"></i>
+                                                </a>
+                                            }
+                                        </div>
                                     </td>
                                 </tr>
                             }
@@ -243,4 +264,7 @@
         });
     </script>
 }
+
+
+
 

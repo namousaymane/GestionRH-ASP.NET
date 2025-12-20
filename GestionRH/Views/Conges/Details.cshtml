@@ -1,89 +1,100 @@
 @model GestionRH.Models.Conge
+@inject Microsoft.AspNetCore.Identity.UserManager<GestionRH.Models.Utilisateur> UserManager
 
 @{
     ViewData["Title"] = "Détails du congé";
 }
 
-<div class="container mt-4">
-    <div class="card shadow-sm">
-        <div class="card-header bg-primary text-white">
-            <h4 class="mb-0"><i class="bi bi-file-text"></i> Détails du congé</h4>
-        </div>
-        <div class="card-body">
-            <dl class="row">
-                <dt class="col-sm-3">Employé</dt>
-                <dd class="col-sm-9">
-                    @if (Model.Employe != null)
-                    {
-                        <strong>@Model.Employe.NomComplet</strong>
-                    }
-                    else
-                    {
-                        <span class="text-danger">Inconnu</span>
-                    }
-                </dd>
+<div class="container mt-4 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
+                <div class="card-header bg-primary text-white p-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center">
+                            <div class="bg-white bg-opacity-25 rounded-circle p-3 me-3">
+                                <i class="bi bi-calendar-event-fill fs-3"></i>
+                            </div>
+                            <div>
+                                <h1 class="h4 mb-0 fw-bold">Détails de la demande</h1>
+                                <p class="mb-0 text-white-50">@Model.Type</p>
+                            </div>
+                        </div>
+                        
+                        @if (Model.Statut == "EnAttente")
+                        {
+                            <span class="badge bg-warning text-dark border border-warning rounded-pill px-3 py-2 shadow-sm"><i class="bi bi-clock me-1"></i>En attente</span>
+                        }
+                        else if (Model.Statut == "ValideManager")
+                        {
+                            <span class="badge bg-info text-dark border border-info rounded-pill px-3 py-2 shadow-sm"><i class="bi bi-person-check me-1"></i>Validé Manager</span>
+                        }
+                        else if (Model.Statut == "Valide")
+                        {
+                            <span class="badge bg-success border border-success rounded-pill px-3 py-2 shadow-sm"><i class="bi bi-check-circle me-1"></i>Validé RH</span>
+                        }
+                        else if (Model.Statut == "Refuse")
+                        {
+                            <span class="badge bg-danger border border-danger rounded-pill px-3 py-2 shadow-sm"><i class="bi bi-x-circle me-1"></i>Refusé</span>
+                        }
+                    </div>
+                </div>
+                
+                <div class="card-body p-4 p-md-5 bg-light bg-opacity-10">
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <h5 class="text-primary border-bottom pb-2 mb-3"><i class="bi bi-clock-history me-2"></i>Dates & Durée</h5>
+                             <dl class="row mb-0">
+                                <dt class="col-sm-5 text-muted">Date de début</dt>
+                                <dd class="col-sm-7 fw-medium">@Model.DateDebut.ToShortDateString()</dd>
 
-                <dt class="col-sm-3">Type de congé</dt>
-                <dd class="col-sm-9">
-                    <span class="badge bg-light text-dark border">@Model.Type</span>
-                </dd>
+                                <dt class="col-sm-5 text-muted">Date de fin</dt>
+                                <dd class="col-sm-7 fw-medium">@Model.DateFin.ToShortDateString()</dd>
 
-                <dt class="col-sm-3">Date de début</dt>
-                <dd class="col-sm-9">@Model.DateDebut.ToLongDateString()</dd>
+                                <dt class="col-sm-5 text-muted">Durée totale</dt>
+                                <dd class="col-sm-7">
+                                    <span class="badge bg-primary rounded-pill px-3">@Model.Duree jours</span>
+                                </dd>
+                            </dl>
+                        </div>
+                        <div class="col-md-6">
+                             <h5 class="text-primary border-bottom pb-2 mb-3"><i class="bi bi-person-circle me-2"></i>Demandeur</h5>
+                             <dl class="row mb-0">
+                                <dt class="col-sm-4 text-muted">Nom</dt>
+                                <dd class="col-sm-8 fw-bold">@(Model.Employe?.NomComplet ?? "Inconnu")</dd>
+                                
+                                <dt class="col-sm-4 text-muted">Poste</dt>
+                                <dd class="col-sm-8 text-muted">@(Model.Employe?.Poste ?? "-")</dd>
+                            </dl>
+                        </div>
+                    </div>
 
-                <dt class="col-sm-3">Date de fin</dt>
-                <dd class="col-sm-9">@Model.DateFin.ToLongDateString()</dd>
+                    <div class="d-flex justify-content-end gap-2 mt-5 pt-3 border-top">
+                        @{
+                            var user = await UserManager.GetUserAsync(User);
+                            var canEdit = Model.Statut == "EnAttente" && (Model.EmployeId == user?.Id || user?.Role == "AdministrateurRH");
+                            var canDelete = Model.Statut == "EnAttente" && (Model.EmployeId == user?.Id || user?.Role == "AdministrateurRH");
+                        }
 
-                <dt class="col-sm-3">Durée</dt>
-                <dd class="col-sm-9">
-                    <span class="badge bg-info">@Model.Duree jour(s)</span>
-                </dd>
-
-                <dt class="col-sm-3">Statut</dt>
-                <dd class="col-sm-9">
-                    @if (Model.Statut == "EnAttente")
-                    {
-                        <span class="badge bg-warning text-dark"><i class="bi bi-clock"></i> En attente</span>
-                    }
-                    else if (Model.Statut == "ValideManager")
-                    {
-                        <span class="badge bg-info text-dark"><i class="bi bi-person-check"></i> Validé Manager</span>
-                    }
-                    else if (Model.Statut == "Valide")
-                    {
-                        <span class="badge bg-success"><i class="bi bi-check-circle"></i> Validé RH</span>
-                    }
-                    else if (Model.Statut == "Refuse")
-                    {
-                        <span class="badge bg-danger"><i class="bi bi-x-circle"></i> Refusé</span>
-                    }
-                    else
-                    {
-                        <span class="badge bg-secondary">@Model.Statut</span>
-                    }
-                </dd>
-            </dl>
-
-            <div class="mt-4">
-                @{
-                    var user = await UserManager.GetUserAsync(User);
-                    var canEdit = Model.Statut == "EnAttente" && (Model.EmployeId == user?.Id || user?.Role == "AdministrateurRH");
-                    var canDelete = Model.Statut == "EnAttente" && (Model.EmployeId == user?.Id || user?.Role == "AdministrateurRH");
-                }
-
-                @if (canEdit)
-                {
-                    <a asp-action="Edit" asp-route-id="@Model.IdConge" class="btn btn-warning">Modifier</a>
-                }
-                @if (canDelete)
-                {
-                    <a asp-action="Delete" asp-route-id="@Model.IdConge" class="btn btn-danger">Supprimer</a>
-                }
-                <a asp-action="Index" class="btn btn-secondary">Retour à la liste</a>
+                        @if (canEdit)
+                        {
+                            <a asp-action="Edit" asp-route-id="@Model.IdConge" class="btn btn-warning btn-lg rounded-pill px-4 shadow-sm">
+                                <i class="bi bi-pencil-square me-2"></i>Modifier
+                            </a>
+                        }
+                        @if (canDelete)
+                        {
+                            <a asp-action="Delete" asp-route-id="@Model.IdConge" class="btn btn-danger btn-lg rounded-pill px-4 shadow-sm">
+                                <i class="bi bi-trash-fill me-2"></i>Supprimer
+                            </a>
+                        }
+                        
+                        <a asp-action="Index" class="btn btn-secondary btn-lg rounded-pill px-4 shadow-sm">
+                            <i class="bi bi-arrow-left me-2"></i>Retour
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
-
-@inject Microsoft.AspNetCore.Identity.UserManager<GestionRH.Models.Utilisateur> UserManager
-

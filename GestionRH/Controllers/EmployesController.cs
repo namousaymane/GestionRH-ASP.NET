@@ -60,7 +60,7 @@ namespace GestionRH.Controllers
                 employesQuery = employesQuery.Where(e => 
                     e.Nom.Contains(searchString) || 
                     e.Prenom.Contains(searchString) ||
-                    e.Email.Contains(searchString) ||
+                    (e.Email != null && e.Email.Contains(searchString)) ||
                     e.Poste.Contains(searchString));
             }
 
@@ -206,7 +206,13 @@ namespace GestionRH.Controllers
             var employe = await _context.Employes
                 .Include(e => e.Conges)
                 .Include(e => e.Paies)
+                .Include(e => e.Departement)
                 .FirstOrDefaultAsync(m => m.Id == id);
+
+            if (!string.IsNullOrEmpty(employe?.ManagerId))
+            {
+                ViewBag.Manager = await _context.Users.FindAsync(employe.ManagerId);
+            }
 
             if (employe == null)
             {
@@ -397,7 +403,7 @@ namespace GestionRH.Controllers
             if (user == null) return Redirect("/Identity/Account/Login");
 
             // Récupérer l'utilisateur selon son type
-            Utilisateur utilisateur = null;
+            Utilisateur? utilisateur = null;
 
             if (user.Role == "Employe")
             {

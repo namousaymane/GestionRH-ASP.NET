@@ -4,44 +4,65 @@
     ViewData["Title"] = "Créer un Responsable";
 }
 
-<div class="container mt-4">
+<div class="container mt-4 mb-5">
     <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card shadow-sm">
-                <div class="card-header bg-primary text-white">
-                    <h4 class="mb-0">Nouvel Responsable</h4>
+        <div class="col-lg-8">
+            <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
+                <div class="card-header bg-primary bg-gradient text-white p-4">
+                    <div class="d-flex align-items-center">
+                        <div class="bg-white bg-opacity-25 rounded-circle p-3 me-3">
+                            <i class="bi bi-person-plus-fill fs-3"></i>
+                        </div>
+                        <div>
+                            <h2 class="h4 mb-1 fw-bold">Nouveau Responsable</h2>
+                            <p class="mb-0 text-white-50 small">Créez un compte pour un manager ou un administrateur.</p>
+                        </div>
+                    </div>
                 </div>
-                <div class="card-body">
+                <div class="card-body p-4 p-md-5 bg-light bg-opacity-10">
                     <form asp-action="Create">
-                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-4 rounded-3 border-0 shadow-sm" role="alert"></div>
 
-                        <div class="form-group mb-3">
-                            <label asp-for="Nom" class="control-label fw-bold"></label>
-                            <input asp-for="Nom" class="form-control" />
-                            <span asp-validation-for="Nom" class="text-danger"></span>
+                        <h5 class="text-primary mb-3"><i class="bi bi-person-badge-fill me-2"></i>Identité</h5>
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <div class="form-floating shadow-sm rounded-3">
+                                    <input asp-for="Nom" class="form-control border-0" placeholder="Nom" />
+                                    <label asp-for="Nom">Nom</label>
+                                </div>
+                                <span asp-validation-for="Nom" class="text-danger small ms-1"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-floating shadow-sm rounded-3">
+                                    <input asp-for="Prenom" class="form-control border-0" placeholder="Prénom" />
+                                    <label asp-for="Prenom">Prénom</label>
+                                </div>
+                                <span asp-validation-for="Prenom" class="text-danger small ms-1"></span>
+                            </div>
                         </div>
 
-                        <div class="form-group mb-3">
-                            <label asp-for="Prenom" class="control-label fw-bold"></label>
-                            <input asp-for="Prenom" class="form-control" />
-                            <span asp-validation-for="Prenom" class="text-danger"></span>
+                        <h5 class="text-primary mb-3"><i class="bi bi-shield-lock-fill me-2"></i>Compte & Sécurité</h5>
+                        <div class="mb-4">
+                            <div class="form-floating shadow-sm rounded-3">
+                                <input asp-for="Email" class="form-control border-0" type="email" placeholder="Email" />
+                                <label asp-for="Email">Adresse Email</label>
+                            </div>
+                            <span asp-validation-for="Email" class="text-danger small ms-1"></span>
                         </div>
 
-                        <div class="form-group mb-3">
-                            <label asp-for="Email" class="control-label fw-bold"></label>
-                            <input asp-for="Email" class="form-control" type="email" />
-                            <span asp-validation-for="Email" class="text-danger"></span>
+                         <div class="mb-4">
+                            <div class="form-floating shadow-sm rounded-3">
+                                <input name="password" id="password" class="form-control border-0" type="password" placeholder="Mot de passe" />
+                                <label for="password">Mot de passe (Optionnel)</label>
+                            </div>
+                            <div class="form-text mt-2 ms-1"><i class="bi bi-info-circle me-1"></i>Si laissé vide, le mot de passe sera : <strong>Manager123!</strong></div>
                         </div>
 
-                        <div class="form-group mb-3">
-                            <label for="password" class="control-label fw-bold">Mot de passe</label>
-                            <input name="password" id="password" class="form-control" type="password" placeholder="Laisser vide pour mot de passe par défaut" />
-                            <small class="form-text text-muted">Si vide, le mot de passe par défaut sera : Manager123!</small>
-                        </div>
-
-                        <div class="d-grid gap-2 mt-4">
-                            <button type="submit" class="btn btn-primary btn-lg">Créer le responsable</button>
-                            <a asp-action="Index" class="btn btn-secondary">Retour à la liste</a>
+                        <div class="d-flex justify-content-end gap-3 pt-3 border-top">
+                            <a asp-action="Index" class="btn btn-light btn-lg rounded-pill px-4 fw-bold">Annuler</a>
+                            <button type="submit" class="btn btn-primary btn-lg rounded-pill px-5 shadow fw-bold">
+                                <i class="bi bi-check-lg me-2"></i>Créer le compte
+                            </button>
                         </div>
                     </form>
                 </div>
@@ -51,18 +72,5 @@
 </div>
 
 @section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 }
-
-
-
-
-
-
-
-
-
-
-

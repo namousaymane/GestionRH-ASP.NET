@@ -1,0 +1,100 @@
+@model GestionRH.Models.Contrat
+
+@{
+    ViewData["Title"] = "Nouveau Contrat";
+}
+
+<div class="container mt-4 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
+                <div class="card-header bg-primary bg-gradient text-white p-4">
+                    <div class="d-flex align-items-center">
+                        <div class="bg-white bg-opacity-25 rounded-circle p-3 me-3">
+                            <i class="bi bi-file-earmark-plus fs-3"></i>
+                        </div>
+                        <div>
+                            <h2 class="h4 mb-1 fw-bold">Nouveau Contrat</h2>
+                            <p class="mb-0 text-white-50 small">Établissez un nouveau contrat pour un employé.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body p-4 p-md-5 bg-light bg-opacity-10">
+                    <form asp-action="Create" method="post">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-4 rounded-3 border-0 shadow-sm" role="alert"></div>
+
+                        <h5 class="text-primary mb-3"><i class="bi bi-person-fill me-2"></i>Partie Contractante</h5>
+                        <div class="mb-4">
+                            <div class="form-floating shadow-sm rounded-3">
+                                <select asp-for="EmployeId" class="form-select border-0" asp-items="ViewBag.Employes" required>
+                                    <option value="">-- Sélectionner un employé --</option>
+                                </select>
+                                <label asp-for="EmployeId">Employé</label>
+                            </div>
+                            <span asp-validation-for="EmployeId" class="text-danger small ms-1"></span>
+                        </div>
+
+                        <h5 class="text-primary mb-3"><i class="bi bi-file-text-fill me-2"></i>Termes du Contrat</h5>
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <div class="form-floating shadow-sm rounded-3">
+                                    <select asp-for="TypeContrat" class="form-select border-0" asp-items="@(new SelectList(ViewBag.Types as string[]))" required>
+                                        <option value="">-- Sélectionner un type --</option>
+                                    </select>
+                                    <label asp-for="TypeContrat">Type de contrat</label>
+                                </div>
+                                <span asp-validation-for="TypeContrat" class="text-danger small ms-1"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-floating shadow-sm rounded-3">
+                                    <input asp-for="SalaireBrut" class="form-control border-0" type="number" step="0.01" min="0" placeholder="Salaire" required />
+                                    <label asp-for="SalaireBrut">Salaire Brut (MAD)</label>
+                                </div>
+                                <span asp-validation-for="SalaireBrut" class="text-danger small ms-1"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-floating shadow-sm rounded-3">
+                                    <input asp-for="DateDebut" class="form-control border-0" type="date" required />
+                                    <label asp-for="DateDebut">Date de début</label>
+                                </div>
+                                <span asp-validation-for="DateDebut" class="text-danger small ms-1"></span>
+                            </div>
+                             <div class="col-md-6">
+                                <div class="form-floating shadow-sm rounded-3">
+                                    <input asp-for="DateFin" class="form-control border-0" type="date" />
+                                    <label asp-for="DateFin">Date de fin (Optionnel)</label>
+                                </div>
+                                <div class="form-text mt-1">Laissez vide pour un CDI.</div>
+                                <span asp-validation-for="DateFin" class="text-danger small ms-1"></span>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <div class="form-floating shadow-sm rounded-3">
+                                <textarea asp-for="Description" class="form-control border-0" style="height: 100px" placeholder="Description"></textarea>
+                                <label asp-for="Description">Notes / Description</label>
+                            </div>
+                            <span asp-validation-for="Description" class="text-danger small ms-1"></span>
+                        </div>
+
+                        <div class="form-check form-switch mb-4">
+                             <input asp-for="EstActif" class="form-check-input" type="checkbox" role="switch" checked />
+                             <label asp-for="EstActif" class="form-check-label fw-bold">Contrat Actif</label>
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-3 pt-3 border-top">
+                            <a asp-action="Index" class="btn btn-light btn-lg rounded-pill px-4 fw-bold">Annuler</a>
+                            <button type="submit" class="btn btn-primary btn-lg rounded-pill px-5 shadow fw-bold">
+                                <i class="bi bi-check-lg me-2"></i>Créer
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

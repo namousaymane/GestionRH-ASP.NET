@@ -222,20 +222,26 @@ namespace GestionRH.Controllers
                 try
                 {
                     var existingDepartement = await _context.Departements.FindAsync(id);
-                    var ancienChefId = existingDepartement?.ChefId;
+                    if (existingDepartement == null) return NotFound();
 
-                    _context.Update(departement);
+                    var ancienChefId = existingDepartement.ChefId;
+
+                    // Mise à jour des propriétés
+                    existingDepartement.Nom = departement.Nom;
+                    existingDepartement.ChefId = departement.ChefId;
+
+                    // _context.Update(departement); // CAUSE DU CONFLIT
                     await _context.SaveChangesAsync();
 
                     // Notifier le nouveau chef si changé
-                    if (!string.IsNullOrEmpty(departement.ChefId) && departement.ChefId != ancienChefId)
+                    if (!string.IsNullOrEmpty(existingDepartement.ChefId) && existingDepartement.ChefId != ancienChefId)
                     {
                         await _notificationService.CreerNotificationAsync(
-                            departement.ChefId,
+                            existingDepartement.ChefId,
                             "Nomination chef de département",
-                            $"Vous avez été nommé chef du département {departement.Nom}.",
+                            $"Vous avez été nommé chef du département {existingDepartement.Nom}.",
                             "Departement",
-                            $"/Departements/Details/{departement.DepartementId}"
+                            $"/Departements/Details/{existingDepartement.DepartementId}"
                         );
                     }
 

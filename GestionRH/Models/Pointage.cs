@@ -10,10 +10,10 @@ namespace GestionRH.Models
         public int Id { get; set; }
 
         [Required]
-        public string EmployeId { get; set; }
+        public string EmployeId { get; set; } = null!;
 
         [ForeignKey("EmployeId")]
-        public virtual Employe Employe { get; set; }
+        public virtual Employe? Employe { get; set; }
 
         [Required]
         [Display(Name = "Date de pointage")]

@@ -22,7 +22,7 @@ namespace GestionRH.Models
         [Required]
         [MaxLength(50)]
         [Display(Name = "Type")]
-        public string Type { get; set; }
+        public string Type { get; set; } = null!;
 
         [Required]
         [MaxLength(50)]
@@ -31,10 +31,10 @@ namespace GestionRH.Models
 
         // Relation avec Employe
         [Required]
-        public string EmployeId { get; set; }
+        public string EmployeId { get; set; } = null!;
 
         [ForeignKey("EmployeId")]
-        public virtual Employe Employe { get; set; }
+        public virtual Employe? Employe { get; set; }
 
         // Méthodes
         public int CalculerDuree()

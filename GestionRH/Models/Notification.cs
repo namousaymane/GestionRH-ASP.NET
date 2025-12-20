@@ -10,22 +10,22 @@ namespace GestionRH.Models
         public int Id { get; set; }
 
         [Required]
-        public string UserId { get; set; }
+        public string UserId { get; set; } = null!;
 
         [ForeignKey("UserId")]
-        public virtual Utilisateur User { get; set; }
+        public virtual Utilisateur? User { get; set; }
 
         [Required]
         [MaxLength(200)]
-        public string Titre { get; set; }
+        public string Titre { get; set; } = null!;
 
         [Required]
         [MaxLength(500)]
-        public string Message { get; set; }
+        public string Message { get; set; } = null!;
 
         [Required]
         [MaxLength(50)]
-        public string Type { get; set; } // "Conge", "Paie", "Employe", etc.
+        public string Type { get; set; } = null!; // "Conge", "Paie", "Employe", etc.
 
         public bool EstLue { get; set; } = false;
 

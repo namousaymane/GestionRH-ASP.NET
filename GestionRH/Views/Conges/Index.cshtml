@@ -142,8 +142,8 @@
                                     }
                                 </td>
                                 <td>
-                                    <div class="btn-group" role="group">
-                                        <a asp-action="Details" asp-route-id="@item.IdConge" class="btn btn-sm btn-info text-white" title="Détails">
+                                    <div class="d-flex justify-content-center">
+                                        <a asp-action="Details" asp-route-id="@item.IdConge" class="btn-icon btn-icon-info" title="Détails">
                                             <i class="bi bi-eye"></i>
                                         </a>
                                         
@@ -154,14 +154,14 @@
                                         
                                         @if (canEdit)
                                         {
-                                            <a asp-action="Edit" asp-route-id="@item.IdConge" class="btn btn-sm btn-warning" title="Modifier">
+                                            <a asp-action="Edit" asp-route-id="@item.IdConge" class="btn-icon btn-icon-warning" title="Modifier">
                                                 <i class="bi bi-pencil"></i>
                                             </a>
                                         }
                                         
                                         @if (canDelete)
                                         {
-                                            <a asp-action="Delete" asp-route-id="@item.IdConge" class="btn btn-sm btn-danger" title="Supprimer">
+                                            <a asp-action="Delete" asp-route-id="@item.IdConge" class="btn-icon btn-icon-danger" title="Supprimer">
                                                 <i class="bi bi-trash"></i>
                                             </a>
                                         }
@@ -169,12 +169,13 @@
                                         @if ((userRole == "AdministrateurRH" && (item.Statut == "EnAttente" || item.Statut == "ValideManager"))
                                                                         || (userRole == "Responsable" && item.Statut == "EnAttente"))
                                         {
+                                            <div class="vr mx-2 text-muted opacity-25"></div>
                                             <form asp-action="Traiter" method="post" class="d-inline">
                                                 <input type="hidden" name="id" value="@item.IdConge" />
-                                                <button type="submit" name="decision" value="Valider" class="btn btn-sm btn-success" title="Valider">
+                                                <button type="submit" name="decision" value="Valider" class="btn-icon btn-icon-primary" title="Valider">
                                                     <i class="bi bi-check-lg"></i>
                                                 </button>
-                                                <button type="submit" name="decision" value="Refuser" class="btn btn-sm btn-danger" title="Refuser">
+                                                <button type="submit" name="decision" value="Refuser" class="btn-icon btn-icon-danger" title="Refuser">
                                                     <i class="bi bi-x-lg"></i>
                                                 </button>
                                             </form>

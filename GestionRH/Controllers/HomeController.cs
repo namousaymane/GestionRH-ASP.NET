@@ -23,7 +23,7 @@ namespace GestionRH.Controllers
         public async Task<IActionResult> Index()
         {
             // Si l'utilisateur n'est pas connecté, on affiche l'accueil public simple
-            if (!User.Identity.IsAuthenticated)
+            if (User.Identity == null || !User.Identity.IsAuthenticated)
             {
                 return View();
             }
@@ -77,7 +77,7 @@ namespace GestionRH.Controllers
         [HttpGet]
         public async Task<IActionResult> GetChartData()
         {
-            if (!User.Identity.IsAuthenticated)
+            if (User.Identity == null || !User.Identity.IsAuthenticated)
             {
                 return Unauthorized();
             }

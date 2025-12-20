@@ -105,6 +105,7 @@ namespace GestionRH.Controllers
         public async Task<IActionResult> Create([Bind("DateDebut,DateFin,Type")] Conge conge)
         {
             var user = await _userManager.GetUserAsync(User);
+            if (user == null) return Challenge();
 
             conge.EmployeId = user.Id;
             conge.Statut = "EnAttente"; // Statut initial
@@ -125,6 +126,7 @@ namespace GestionRH.Controllers
                 await _context.SaveChangesAsync();
 
                 // Notifier le manager si l'employé a un manager
+                // Notifier le manager si l'employé a un manager
                 if (user != null)
                 {
                     var employe = await _context.Employes.FindAsync(user.Id);
@@ -134,6 +136,19 @@ namespace GestionRH.Controllers
                             employe.ManagerId,
                             "Nouvelle demande de congé",
                             $"{employe.NomComplet} a demandé un congé du {conge.DateDebut:dd/MM/yyyy} au {conge.DateFin:dd/MM/yyyy}",
+                            "Conge",
+                            Url.Action("Index", "Conges")
+                        );
+                    }
+
+                    // Notifier les Administrateurs RH
+                    var admins = await _userManager.GetUsersInRoleAsync("AdministrateurRH");
+                    foreach (var admin in admins)
+                    {
+                        await _notificationService.CreerNotificationAsync(
+                            admin.Id,
+                            "Nouvelle demande de congé",
+                            $"{employe?.NomComplet ?? user.UserName} a demandé un congé du {conge.DateDebut:dd/MM/yyyy} au {conge.DateFin:dd/MM/yyyy}",
                             "Conge",
                             Url.Action("Index", "Conges")
                         );
@@ -347,7 +362,7 @@ namespace GestionRH.Controllers
 
             if (decision == "Valider")
             {
-                if (user.Role == "Responsable")
+                if (user != null && user.Role == "Responsable")
                 {
                     conge.Statut = "ValideManager";
                 }

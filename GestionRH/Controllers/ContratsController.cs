@@ -3,6 +3,7 @@ using GestionRH.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 
 namespace GestionRH.Controllers
@@ -63,7 +64,12 @@ namespace GestionRH.Controllers
                 return Forbid();
             }
 
-            ViewBag.Employes = await _context.Employes.ToListAsync();
+            var employes = await _context.Employes.ToListAsync();
+            ViewBag.Employes = employes.Select(e => new SelectListItem
+            {
+                Value = e.Id,
+                Text = e.NomComplet
+            }).ToList();
             ViewBag.Types = new[] { "CDI", "CDD", "Stage", "Freelance" };
             return View();
         }
@@ -85,7 +91,12 @@ namespace GestionRH.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            ViewBag.Employes = await _context.Employes.ToListAsync();
+            var employes = await _context.Employes.ToListAsync();
+            ViewBag.Employes = employes.Select(e => new SelectListItem
+            {
+                Value = e.Id,
+                Text = e.NomComplet
+            }).ToList();
             ViewBag.Types = new[] { "CDI", "CDD", "Stage", "Freelance" };
             return View(contrat);
         }
@@ -134,7 +145,12 @@ namespace GestionRH.Controllers
                 return NotFound();
             }
 
-            ViewBag.Employes = await _context.Employes.ToListAsync();
+            var employes = await _context.Employes.ToListAsync();
+            ViewBag.Employes = employes.Select(e => new SelectListItem
+            {
+                Value = e.Id,
+                Text = e.NomComplet
+            }).ToList();
             ViewBag.Types = new[] { "CDI", "CDD", "Stage", "Freelance" };
             return View(contrat);
         }
@@ -175,7 +191,12 @@ namespace GestionRH.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            ViewBag.Employes = await _context.Employes.ToListAsync();
+            var employes = await _context.Employes.ToListAsync();
+            ViewBag.Employes = employes.Select(e => new SelectListItem
+            {
+                Value = e.Id,
+                Text = e.NomComplet
+            }).ToList();
             ViewBag.Types = new[] { "CDI", "CDD", "Stage", "Freelance" };
             return View(contrat);
         }

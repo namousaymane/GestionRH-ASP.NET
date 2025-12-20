@@ -12,12 +12,12 @@ namespace GestionRH.Models
         public int PaieId { get; set; }
 
         [ForeignKey("PaieId")]
-        public virtual Paie Paie { get; set; }
+        public virtual Paie? Paie { get; set; }
 
         [Required]
         [MaxLength(100)]
         [Display(Name = "Libellé")]
-        public string Libelle { get; set; } // "Salaire de base", "Prime", "CNSS", etc.
+        public string Libelle { get; set; } = null!; // "Salaire de base", "Prime", "CNSS", etc.
 
         [Required]
         [Column(TypeName = "decimal(18,2)")]
@@ -27,7 +27,7 @@ namespace GestionRH.Models
         [Required]
         [MaxLength(20)]
         [Display(Name = "Type")]
-        public string Type { get; set; } // "Gain" ou "Retenue"
+        public string Type { get; set; } = null!; // "Gain" ou "Retenue"
 
         [Display(Name = "Ordre d'affichage")]
         public int Ordre { get; set; } = 0; // Pour ordonner les lignes dans le bulletin

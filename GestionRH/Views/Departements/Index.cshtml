@@ -36,15 +36,15 @@
             {
                 <div class="col-md-6 col-lg-4 mb-4">
                     <div class="card shadow-sm h-100">
-                        <div class="card-header bg-primary text-white">
-                            <h5 class="mb-0"><i class="bi bi-building"></i> @item.Nom</h5>
+                        <div class="card-header-premium text-white">
+                            <h5 class="mb-0"><i class="bi bi-building-fill"></i> @item.Nom</h5>
                         </div>
                         <div class="card-body">
                             <div class="mb-3">
-                                <strong><i class="bi bi-person-badge"></i> Responsable :</strong><br />
+                                <strong><i class="bi bi-person-badge-fill"></i> Responsable :</strong><br />
                                 @if (item.Chef != null)
                                 {
-                                    <span class="badge bg-info">@item.Chef.NomComplet</span>
+                                    <span class="badge bg-info mt-1">@item.Chef.NomComplet</span>
                                 }
                                 else
                                 {
@@ -52,25 +52,23 @@
                                 }
                             </div>
                             <div class="mb-3">
-                                <strong><i class="bi bi-people"></i> Nombre d'employés :</strong>
-                                <span class="badge bg-success">@item.Employes.Count</span>
+                                <strong><i class="bi bi-people-fill"></i> Nombre d'employés :</strong>
+                                <span class="badge bg-success ms-1">@item.Employes.Count</span>
                             </div>
                         </div>
-                        <div class="card-footer bg-light">
-                            <div class="btn-group w-100" role="group">
-                                <a asp-action="Details" asp-route-id="@item.DepartementId" class="btn btn-sm btn-info text-white">
-                                    <i class="bi bi-eye"></i> Détails
+                        <div class="card-footer bg-transparent border-0 d-flex justify-content-end pb-3">
+                            <a asp-action="Details" asp-route-id="@item.DepartementId" class="btn-icon btn-icon-info me-2" title="Détails">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                            @if (isAdminRH)
+                            {
+                                <a asp-action="Edit" asp-route-id="@item.DepartementId" class="btn-icon btn-icon-warning me-2" title="Modifier">
+                                    <i class="bi bi-pencil"></i>
                                 </a>
-                                @if (isAdminRH)
-                                {
-                                    <a asp-action="Edit" asp-route-id="@item.DepartementId" class="btn btn-sm btn-warning">
-                                        <i class="bi bi-pencil"></i> Modifier
-                                    </a>
-                                    <a asp-action="Delete" asp-route-id="@item.DepartementId" class="btn btn-sm btn-danger">
-                                        <i class="bi bi-trash"></i> Supprimer
-                                    </a>
-                                }
-                            </div>
+                                <a asp-action="Delete" asp-route-id="@item.DepartementId" class="btn-icon btn-icon-danger" title="Supprimer">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                            }
                         </div>
                     </div>
                 </div>

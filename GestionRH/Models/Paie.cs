@@ -17,7 +17,7 @@ namespace GestionRH.Models
         [Required]
         [MaxLength(20)]
         [Display(Name = "Mois")]
-        public string Mois { get; set; }
+        public string Mois { get; set; } = null!;
 
         [Required]
         [Display(Name = "Date d'émission")]
@@ -26,10 +26,10 @@ namespace GestionRH.Models
 
         // Relation avec Employe
         [Required]
-        public string EmployeId { get; set; }
+        public string EmployeId { get; set; } = null!;
 
         [ForeignKey("EmployeId")]
-        public virtual Employe Employe { get; set; }
+        public virtual Employe? Employe { get; set; }
 
         // Relation avec LignesPaie
         public virtual ICollection<LignePaie> LignesPaie { get; set; } = new List<LignePaie>();

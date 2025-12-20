@@ -11,7 +11,7 @@ namespace GestionRH.Models
         [Required]
         [MaxLength(100)]
         [Display(Name = "Poste")]
-        public string Poste { get; set; }
+        public string Poste { get; set; } = null!;
 
         [Required]
         [Column(TypeName = "decimal(18,2)")]

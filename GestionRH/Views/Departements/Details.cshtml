@@ -4,81 +4,100 @@
     ViewData["Title"] = "Détails du Département";
 }
 
-<div class="container mt-4">
+<div class="container mt-4 mb-5">
     <div class="row justify-content-center">
-        <div class="col-md-10">
-            <div class="card shadow-lg">
-                <div class="card-header bg-primary text-white">
-                    <h4 class="mb-0"><i class="bi bi-building"></i> @Model.Nom</h4>
-                </div>
-                <div class="card-body">
-                    <div class="row mb-4">
-                        <div class="col-md-6">
-                            <h5 class="text-primary"><i class="bi bi-info-circle"></i> Informations</h5>
-                            <hr />
-                            <div class="mb-3">
-                                <strong>Nom du Département :</strong><br />
-                                <span class="fs-5">@Model.Nom</span>
+        <div class="col-lg-10">
+            <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
+                <div class="card-header bg-primary text-white p-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center">
+                            <div class="bg-white bg-opacity-25 rounded-circle p-3 me-3">
+                                <i class="bi bi-building fs-2"></i>
                             </div>
-                            <div class="mb-3">
-                                <strong>Responsable :</strong><br />
-                                @if (Model.Chef != null)
-                                {
-                                    <span class="badge bg-info fs-6">@Model.Chef.NomComplet</span>
-                                    <br />
-                                    <small class="text-muted">@Model.Chef.Email</small>
-                                }
-                                else
-                                {
-                                    <span class="text-muted fst-italic">Aucun responsable assigné</span>
-                                }
+                            <div>
+                                <h1 class="h3 mb-0 fw-bold">@Model.Nom</h1>
+                                <p class="mb-0 text-white-50">Département</p>
                             </div>
                         </div>
-                        <div class="col-md-6">
-                            <h5 class="text-success"><i class="bi bi-people"></i> Employés (@Model.Employes.Count)</h5>
-                            <hr />
-                            @if (Model.Employes.Any())
+                        <span class="badge bg-white text-primary rounded-pill px-3 py-2 fs-6 shadow-sm">
+                            <i class="bi bi-people-fill me-1"></i> @Model.Employes?.Count() Employé(s)
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-body p-4 p-md-5 bg-light bg-opacity-10">
+                    <div class="row g-4">
+                        <div class="col-md-5">
+                            <h5 class="text-primary border-bottom pb-2 mb-3"><i class="bi bi-person-badge-fill me-2"></i>Responsable</h5>
+                            @if (Model.Chef != null)
                             {
-                                <div class="list-group">
-                                    @foreach (var employe in Model.Employes)
+                                <div class="card border-0 shadow-sm bg-white rounded-3">
+                                    <div class="card-body d-flex align-items-center">
+                                        <div class="avatar-sm bg-primary text-white rounded-circle me-3 d-flex align-items-center justify-content-center" style="width: 48px; height: 48px; font-size: 20px;">
+                                            @(Model.Chef.Nom?.Substring(0, 1) ?? "C")
+                                        </div>
+                                        <div>
+                                            <h6 class="fw-bold mb-0">@Model.Chef.NomComplet</h6>
+                                            <small class="text-muted">@Model.Chef.Email</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="alert alert-secondary border-0 text-center">
+                                    <i class="bi bi-person-x-fill fs-4 d-block mb-2"></i>
+                                    Aucun responsable assigné
+                                </div>
+                            }
+                        </div>
+                        <div class="col-md-7">
+                            <h5 class="text-primary border-bottom pb-2 mb-3"><i class="bi bi-people-fill me-2"></i>Membres de l'équipe</h5>
+                            @if (Model.Employes != null && Model.Employes.Any())
+                            {
+                                <div class="list-group shadow-sm rounded-3 overflow-hidden">
+                                    @foreach (var employe in Model.Employes.Take(5))
                                     {
-                                        <div class="list-group-item">
-                                            <div class="d-flex justify-content-between align-items-center">
-                                                <div>
-                                                    <strong>@employe.NomComplet</strong><br />
-                                                    <small class="text-muted">@employe.Poste</small>
+                                        <div class="list-group-item border-0 d-flex justify-content-between align-items-center px-4 py-3">
+                                            <div class="d-flex align-items-center">
+                                                <div class="avatar-xs bg-light text-primary rounded-circle me-3 d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+                                                    <i class="bi bi-person-fill"></i>
                                                 </div>
-                                                <a asp-controller="Employes" asp-action="Details" asp-route-id="@employe.Id" class="btn btn-sm btn-outline-primary">
-                                                    <i class="bi bi-eye"></i> Voir
-                                                </a>
+                                                <div>
+                                                    <div class="fw-bold text-dark">@employe.NomComplet</div>
+                                                    <div class="small text-muted">@employe.Poste</div>
+                                                </div>
                                             </div>
+                                            <a asp-controller="Employes" asp-action="Details" asp-route-id="@employe.Id" class="btn btn-sm btn-light rounded-circle shadow-sm">
+                                                <i class="bi bi-chevron-right"></i>
+                                            </a>
+                                        </div>
+                                    }
+                                    @if(Model.Employes.Count > 5)
+                                    {
+                                        <div class="list-group-item border-0 text-center bg-light text-muted small py-2">
+                                            + @(Model.Employes.Count - 5) autres employés...
                                         </div>
                                     }
                                 </div>
                             }
                             else
                             {
-                                <p class="text-muted fst-italic">Aucun employé dans ce département</p>
+                                <p class="text-muted fst-italic text-center py-4 border rounded-3 bg-light bg-opacity-50">Aucun employé dans ce département.</p>
                             }
                         </div>
                     </div>
 
-                    <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
-                        <a asp-action="Edit" asp-route-id="@Model.DepartementId" class="btn btn-warning">
-                            <i class="bi bi-pencil"></i> Modifier
+                    <div class="d-flex justify-content-end gap-2 mt-5 pt-3 border-top">
+                        <a asp-action="Edit" asp-route-id="@Model.DepartementId" class="btn btn-warning btn-lg rounded-pill px-4 shadow-sm">
+                            <i class="bi bi-pencil-square me-2"></i>Modifier
                         </a>
-                        <a asp-action="Index" class="btn btn-secondary">Retour à la liste</a>
+                        <a asp-action="Index" class="btn btn-secondary btn-lg rounded-pill px-4 shadow-sm">
+                            <i class="bi bi-arrow-left me-2"></i>Retour
+                        </a>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
-
-
-
-
-
-
-
-

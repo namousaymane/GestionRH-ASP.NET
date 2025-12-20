@@ -4,58 +4,82 @@
     ViewData["Title"] = "Détails de l'employé";
 }
 
-<div class="container mt-4">
-    <div class="card shadow-sm">
-        <div class="card-header bg-primary text-white">
-            <h4 class="mb-0"><i class="bi bi-person-badge"></i> Détails de l'employé</h4>
-        </div>
-        <div class="card-body">
-            <dl class="row">
-                <dt class="col-sm-3">Nom complet</dt>
-                <dd class="col-sm-9"><strong>@Model.NomComplet</strong></dd>
+<div class="container mt-4 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
+                <div class="card-header bg-primary text-white p-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center">
+                            <div class="bg-white bg-opacity-25 rounded-circle p-3 me-3">
+                                <i class="bi bi-person-badge-fill fs-2"></i>
+                            </div>
+                            <div>
+                                <h1 class="h3 mb-0 fw-bold">@Model.NomComplet</h1>
+                                <p class="mb-0 text-white-50">@Model.Poste</p>
+                            </div>
+                        </div>
+                        <div class="d-none d-md-block">
+                            <span class="badge bg-white text-primary rounded-pill px-3 py-2 fs-6 shadow-sm">
+                                <i class="bi bi-building me-1"></i> @(Model.Departement?.Nom ?? "Non assigné")
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card-body p-4 p-md-5 bg-light bg-opacity-10">
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <h5 class="text-primary border-bottom pb-2 mb-3"><i class="bi bi-person-lines-fill me-2"></i>Coordonnées</h5>
+                            <dl class="row mb-0">
+                                <dt class="col-sm-4 text-muted">Email</dt>
+                                <dd class="col-sm-8 fw-medium">@Model.Email</dd>
 
-                <dt class="col-sm-3">Email</dt>
-                <dd class="col-sm-9">@Model.Email</dd>
+                                <dt class="col-sm-4 text-muted">Manager</dt>
+                                <dd class="col-sm-8">
+                                    @{
+                                        var manager = ViewBag.Manager as GestionRH.Models.Utilisateur;
+                                    }
+                                    @if (manager != null)
+                                    {
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar-xs bg-primary text-white rounded-circle me-2 d-flex align-items-center justify-content-center" style="width: 24px; height: 24px; font-size: 12px;">
+                                                @(manager.Nom?.Substring(0,1) ?? "M")
+                                            </div>
+                                            <span>@manager.NomComplet</span>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted fst-italic">Aucun manager</span>
+                                    }
+                                </dd>
+                            </dl>
+                        </div>
+                        <div class="col-md-6">
+                             <h5 class="text-primary border-bottom pb-2 mb-3"><i class="bi bi-wallet2 me-2"></i>Contrat & Rémunération</h5>
+                             <dl class="row mb-0">
+                                <dt class="col-sm-4 text-muted">Salaire</dt>
+                                <dd class="col-sm-8 fw-bold text-success">@Model.Salaire.ToString("C")</dd>
 
-                <dt class="col-sm-3">Poste</dt>
-                <dd class="col-sm-9">@Model.Poste</dd>
+                                <dt class="col-sm-4 text-muted">Solde Congés</dt>
+                                <dd class="col-sm-8">
+                                    <span class="badge bg-info text-dark rounded-pill">@Model.SoldeConges jours</span>
+                                </dd>
+                            </dl>
+                        </div>
+                    </div>
 
-                <dt class="col-sm-3">Salaire</dt>
-                <dd class="col-sm-9">@Model.Salaire.ToString("C")</dd>
-
-                @if (!string.IsNullOrEmpty(Model.ManagerId))
-                {
-                    <dt class="col-sm-3">Manager ID</dt>
-                    <dd class="col-sm-9">@Model.ManagerId</dd>
-                }
-
-                <dt class="col-sm-3">Nombre de congés</dt>
-                <dd class="col-sm-9">
-                    <span class="badge bg-info">@(Model.Conges?.Count ?? 0) congé(s)</span>
-                </dd>
-
-                <dt class="col-sm-3">Nombre de paies</dt>
-                <dd class="col-sm-9">
-                    <span class="badge bg-success">@(Model.Paies?.Count ?? 0) paie(s)</span>
-                </dd>
-            </dl>
-
-            <div class="mt-4">
-                <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Modifier</a>
-                <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger">Supprimer</a>
-                <a asp-action="Index" class="btn btn-secondary">Retour à la liste</a>
+                    <div class="d-flex justify-content-end gap-2 mt-5 pt-3 border-top">
+                        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning btn-lg rounded-pill px-4 shadow-sm">
+                            <i class="bi bi-pencil-square me-2"></i>Modifier
+                        </a>
+                        <a asp-action="Index" class="btn btn-secondary btn-lg rounded-pill px-4 shadow-sm">
+                            <i class="bi bi-arrow-left me-2"></i>Retour
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
-
-
-
-
-
-
-
-
-
-
-

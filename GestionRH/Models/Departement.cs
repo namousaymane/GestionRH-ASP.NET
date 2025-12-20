@@ -10,7 +10,7 @@ namespace GestionRH.Models
 
         [Required]
         [Display(Name = "Nom du département")]
-        public string Nom { get; set; }
+        public string Nom { get; set; } = null!;
 
         // Le chef du département (Manager)
         [Display(Name = "Responsable du département")]

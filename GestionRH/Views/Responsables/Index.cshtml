@@ -37,10 +37,16 @@
                                 <td class="fw-bold">@item.NomComplet</td>
                                 <td>@item.Email</td>
                                 <td>
-                                    <div class="btn-group" role="group">
-                                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info text-white" title="Détails">Détails</a>
-                                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning" title="Modifier">Modifier</a>
-                                        <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger" title="Supprimer">Supprimer</a>
+                                    <div class="d-flex justify-content-start">
+                                        <a asp-action="Details" asp-route-id="@item.Id" class="btn-icon btn-icon-info me-2" title="Détails">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn-icon btn-icon-warning me-2" title="Modifier">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <a asp-action="Delete" asp-route-id="@item.Id" class="btn-icon btn-icon-danger" title="Supprimer">
+                                            <i class="bi bi-trash"></i>
+                                        </a>
                                     </div>
                                 </td>
                             </tr>

@@ -113,6 +113,19 @@ namespace GestionRH.Controllers
                     );
                 }
 
+                // Notifier les Administrateurs RH
+                var admins = await _userManager.GetUsersInRoleAsync("AdministrateurRH");
+                foreach (var admin in admins)
+                {
+                    await _notificationService.CreerNotificationAsync(
+                        admin.Id,
+                        "Pointage d'arrivée",
+                        $"{employe?.NomComplet ?? user.UserName} a pointé son arrivée aujourd'hui à {pointage.HeureArrivee.Value:HH:mm}.",
+                        "Pointage",
+                        $"/Pointages/Index"
+                    );
+                }
+
                 TempData["SuccessMessage"] = "Pointage d'arrivée enregistré avec succès.";
                 return RedirectToAction(nameof(Index));
             }
@@ -160,6 +173,7 @@ namespace GestionRH.Controllers
                 );
 
                 // Notifier le manager si assigné
+                // Notifier le manager si assigné
                 var employe = await _context.Employes.FindAsync(pointage.EmployeId);
                 if (employe != null && !string.IsNullOrEmpty(employe.ManagerId))
                 {
@@ -167,6 +181,19 @@ namespace GestionRH.Controllers
                         employe.ManagerId,
                         "Pointage enregistré",
                         $"Un pointage a été enregistré pour {employe.NomComplet} le {pointage.DatePointage:dd/MM/yyyy}.",
+                        "Pointage",
+                        $"/Pointages/Index"
+                    );
+                }
+
+                // Notifier les Administrateurs RH
+                var admins = await _userManager.GetUsersInRoleAsync("AdministrateurRH");
+                foreach (var admin in admins)
+                {
+                    await _notificationService.CreerNotificationAsync(
+                        admin.Id,
+                        "Pointage enregistré",
+                        $"Un pointage a été enregistré pour {employe?.NomComplet ?? "un employé"} le {pointage.DatePointage:dd/MM/yyyy}.",
                         "Pointage",
                         $"/Pointages/Index"
                     );
@@ -227,10 +254,214 @@ namespace GestionRH.Controllers
                     );
                 }
 
+                // Notifier les Administrateurs RH
+                var admins = await _userManager.GetUsersInRoleAsync("AdministrateurRH");
+                foreach (var admin in admins)
+                {
+                    await _notificationService.CreerNotificationAsync(
+                        admin.Id,
+                        "Pointage de départ",
+                        $"{employe?.NomComplet ?? user.UserName} a pointé son départ aujourd'hui à {pointageAujourdhui.HeureDepart.Value:HH:mm}.",
+                        "Pointage",
+                        $"/Pointages/Index"
+                    );
+                }
+
                 return Json(new { success = true, message = "Pointage de départ enregistré" });
             }
 
             return Json(new { success = false, message = "Aucun pointage d'arrivée trouvé pour aujourd'hui" });
+        }
+
+        // GET: Pointages/Details/5
+        public async Task<IActionResult> Details(int? id)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return Challenge();
+
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var pointage = await _context.Pointages
+                .Include(p => p.Employe)
+                .FirstOrDefaultAsync(m => m.Id == id);
+
+            if (pointage == null)
+            {
+                return NotFound();
+            }
+
+            // Vérifier les permissions
+            if (user.Role == "Employe" && pointage.EmployeId != user.Id)
+            {
+                return Forbid();
+            }
+            else if (user.Role == "Responsable" && pointage.Employe.ManagerId != user.Id)
+            {
+                return Forbid();
+            }
+
+            return View(pointage);
+        }
+
+        // GET: Pointages/Edit/5
+        public async Task<IActionResult> Edit(int? id)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return Challenge();
+
+            // Seuls les AdministrateursRH peuvent modifier les pointages
+            if (user.Role != "AdministrateurRH")
+            {
+                return Forbid();
+            }
+
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var pointage = await _context.Pointages
+                .Include(p => p.Employe)
+                .FirstOrDefaultAsync(m => m.Id == id);
+
+            if (pointage == null)
+            {
+                return NotFound();
+            }
+
+            var employes = await _context.Employes.ToListAsync();
+            ViewBag.Employes = employes.Select(e => new SelectListItem
+            {
+                Value = e.Id,
+                Text = e.NomComplet
+            }).ToList();
+            return View(pointage);
+        }
+
+        // POST: Pointages/Edit/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, [Bind("Id,EmployeId,DatePointage,HeureArrivee,HeureDepart,EstAbsent,Remarques")] Pointage pointage)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return Challenge();
+
+            // Seuls les AdministrateursRH peuvent modifier les pointages
+            if (user.Role != "AdministrateurRH")
+            {
+                return Forbid();
+            }
+
+            if (id != pointage.Id)
+            {
+                return NotFound();
+            }
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    // Recalculer la durée si les heures sont fournies
+                    if (pointage.HeureArrivee.HasValue && pointage.HeureDepart.HasValue)
+                    {
+                        pointage.DureeTravail = pointage.HeureDepart.Value - pointage.HeureArrivee.Value;
+                        
+                        var heuresNormales = TimeSpan.FromHours(8);
+                        if (pointage.DureeTravail.Value > heuresNormales)
+                        {
+                            pointage.HeuresSupplementaires = (decimal)(pointage.DureeTravail.Value - heuresNormales).TotalHours;
+                        }
+                        else
+                        {
+                            pointage.HeuresSupplementaires = 0;
+                        }
+                    }
+
+                    _context.Update(pointage);
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!PointageExists(pointage.Id))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+                return RedirectToAction(nameof(Index));
+            }
+
+            var employes = await _context.Employes.ToListAsync();
+            ViewBag.Employes = employes.Select(e => new SelectListItem
+            {
+                Value = e.Id,
+                Text = e.NomComplet
+            }).ToList();
+            return View(pointage);
+        }
+
+        // GET: Pointages/Delete/5
+        public async Task<IActionResult> Delete(int? id)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return Challenge();
+
+            // Seuls les AdministrateursRH peuvent supprimer les pointages
+            if (user.Role != "AdministrateurRH")
+            {
+                return Forbid();
+            }
+
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var pointage = await _context.Pointages
+                .Include(p => p.Employe)
+                .FirstOrDefaultAsync(m => m.Id == id);
+
+            if (pointage == null)
+            {
+                return NotFound();
+            }
+
+            return View(pointage);
+        }
+
+        // POST: Pointages/Delete/5
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return Challenge();
+
+            // Seuls les AdministrateursRH peuvent supprimer les pointages
+            if (user.Role != "AdministrateurRH")
+            {
+                return Forbid();
+            }
+
+            var pointage = await _context.Pointages.FindAsync(id);
+            if (pointage != null)
+            {
+                _context.Pointages.Remove(pointage);
+                await _context.SaveChangesAsync();
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        private bool PointageExists(int id)
+        {
+            return _context.Pointages.Any(e => e.Id == id);
         }
     }
 }
