@@ -29,12 +29,12 @@ namespace GestionRH.Models
         [Display(Name = "Statut")]
         public string Statut { get; set; } = "EnAttente";
 
-        // Relation avec Employe
+        // Relation avec Utilisateur
         [Required]
         public string EmployeId { get; set; } = null!;
 
         [ForeignKey("EmployeId")]
-        public virtual Employe? Employe { get; set; }
+        public virtual Utilisateur? Employe { get; set; }
 
         // Méthodes
         public int CalculerDuree()

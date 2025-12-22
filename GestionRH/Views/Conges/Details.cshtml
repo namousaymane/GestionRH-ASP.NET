@@ -64,7 +64,7 @@
                                 <dd class="col-sm-8 fw-bold">@(Model.Employe?.NomComplet ?? "Inconnu")</dd>
                                 
                                 <dt class="col-sm-4 text-muted">Poste</dt>
-                                <dd class="col-sm-8 text-muted">@(Model.Employe?.Poste ?? "-")</dd>
+                                <dd class="col-sm-8 text-muted">@((Model.Employe as GestionRH.Models.Employe)?.Poste ?? "-")</dd>
                             </dl>
                         </div>
                     </div>

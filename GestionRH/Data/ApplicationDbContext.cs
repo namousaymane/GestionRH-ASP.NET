@@ -91,7 +91,7 @@ namespace GestionRH.Data
             {
                 entity.HasKey(c => c.IdConge);
                 entity.HasOne(c => c.Employe)
-                    .WithMany(e => e.Conges)
+                    .WithMany(u => u.Conges) // Utilisateur.Conges
                     .HasForeignKey(c => c.EmployeId)
                     .OnDelete(DeleteBehavior.Cascade);
                 entity.Property(c => c.Type).IsRequired().HasMaxLength(50);

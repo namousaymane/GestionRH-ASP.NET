@@ -40,7 +40,7 @@ namespace GestionRH.Controllers
             {
                 // Le manager voit ses congés + ceux de son équipe (ceux dont il est le manager)
                 // Note: On assume que user.Id est utilisé comme ManagerId dans la table Employés
-                congesQuery = congesQuery.Where(c => c.EmployeId == user.Id || c.Employe.ManagerId == user.Id);
+                congesQuery = congesQuery.Where(c => c.EmployeId == user.Id || (c.Employe is Employe && ((Employe)c.Employe).ManagerId == user.Id));
             }
             else // Employé simple
             {
@@ -368,22 +368,30 @@ namespace GestionRH.Controllers
                 }
                 else if (user.Role == "AdministrateurRH")
                 {
-                    // VÉRIFICATION DU SOLDE AVANT VALIDATION
+                    // VÉRIFICATION DU SOLDE AVANT VALIDATION (Seulement pour les employés)
                     int duree = (conge.DateFin - conge.DateDebut).Days + 1;
 
-                    if (conge.Employe.SoldeConges >= duree)
+                    if (conge.Employe is Employe employe)
                     {
-                        conge.Statut = "Valide";
-                        // DÉCRÉMENTATION
-                        conge.Employe.SoldeConges -= duree;
+                        if (employe.SoldeConges >= duree)
+                        {
+                            conge.Statut = "Valide";
+                            // DÉCRÉMENTATION
+                            employe.SoldeConges -= duree;
+                        }
+                        else
+                        {
+                            // Optionnel : Gérer l'erreur si solde insuffisant
+                            // Pour faire simple : on laisse passer ou on met un message, 
+                            // mais techniquement on retire les jours :
+                            conge.Statut = "Valide";
+                            employe.SoldeConges -= duree;
+                        }
                     }
                     else
                     {
-                        // Optionnel : Gérer l'erreur si solde insuffisant (pour l'instant on refuse ou on laisse passer en négatif ?)
-                        // Pour faire simple : on laisse passer ou on met un message, 
-                        // mais techniquement on retire les jours :
+                        // Pour les Responsables ou autres, pas de décompte de solde implémenté
                         conge.Statut = "Valide";
-                        conge.Employe.SoldeConges -= duree;
                     }
 
                     // Notifier l'employé
@@ -430,7 +438,7 @@ namespace GestionRH.Controllers
             }
             else if (user.Role == "Responsable")
             {
-                congesQuery = congesQuery.Where(c => c.EmployeId == user.Id || c.Employe.ManagerId == user.Id);
+                congesQuery = congesQuery.Where(c => c.EmployeId == user.Id || (c.Employe is Employe && ((Employe)c.Employe).ManagerId == user.Id));
             }
             else
             {

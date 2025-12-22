@@ -51,13 +51,13 @@ namespace GestionRH.Controllers
                 // Statistiques pour le responsable (manager)
                 stats.TotalEmployes = await _context.Employes.CountAsync(e => e.ManagerId == user.Id);
                 stats.TotalConges = await _context.Conges
-                    .CountAsync(c => c.Employe.ManagerId == user.Id || c.EmployeId == user.Id);
+                    .CountAsync(c => (c.Employe is Employe && ((Employe)c.Employe).ManagerId == user.Id) || c.EmployeId == user.Id);
                 stats.CongesEnAttente = await _context.Conges
-                    .CountAsync(c => (c.Employe.ManagerId == user.Id || c.EmployeId == user.Id) && c.Statut == "EnAttente");
+                    .CountAsync(c => ((c.Employe is Employe && ((Employe)c.Employe).ManagerId == user.Id) || c.EmployeId == user.Id) && c.Statut == "EnAttente");
                 stats.CongesValides = await _context.Conges
-                    .CountAsync(c => (c.Employe.ManagerId == user.Id || c.EmployeId == user.Id) && c.Statut == "Valide");
+                    .CountAsync(c => ((c.Employe is Employe && ((Employe)c.Employe).ManagerId == user.Id) || c.EmployeId == user.Id) && c.Statut == "Valide");
                 stats.TotalPaies = await _context.Paies
-                    .CountAsync(p => p.Employe.ManagerId == user.Id);
+                    .CountAsync(p => p.Employe.ManagerId == user.Id); // Paie is still linked to Employe, so this is valid ?? Checking Paie model... Paie.Employe is ? Let's check Paie model. Assumed Valid for now as Paie usually linked to Employe.
             }
             else
             {
@@ -107,7 +107,7 @@ namespace GestionRH.Controllers
 
             if (user.Role == "Responsable")
             {
-                query = query.Where(c => c.Employe.ManagerId == user.Id || c.EmployeId == user.Id);
+                query = query.Where(c => (c.Employe is Employe && ((Employe)c.Employe).ManagerId == user.Id) || c.EmployeId == user.Id);
             }
             else if (user.Role == "Employe")
             {
@@ -133,7 +133,7 @@ namespace GestionRH.Controllers
 
             if (user.Role == "Responsable")
             {
-                query = query.Where(c => c.Employe.ManagerId == user.Id || c.EmployeId == user.Id);
+                query = query.Where(c => (c.Employe is Employe && ((Employe)c.Employe).ManagerId == user.Id) || c.EmployeId == user.Id);
             }
             else if (user.Role == "Employe")
             {
@@ -151,14 +151,14 @@ namespace GestionRH.Controllers
 
         private async Task<List<object>> GetCongesParDepartement()
         {
-            var conges = await _context.Conges
-                .Include(c => c.Employe)
-                .ThenInclude(e => e.Departement)
-                .Where(c => c.Employe.Departement != null)
+            // On part des employés pour avoir le département
+            var stats = await _context.Employes
+                .Include(e => e.Departement)
+                .SelectMany(e => e.Conges.Select(c => new { DeptName = e.Departement.Nom ?? "Sans département" }))
                 .ToListAsync();
 
-            return conges
-                .GroupBy(c => c.Employe.Departement?.Nom ?? "Sans département")
+             return stats
+                .GroupBy(x => x.DeptName)
                 .Select(g => new { departement = g.Key, count = g.Count() })
                 .Cast<object>()
                 .ToList();

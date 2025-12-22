@@ -31,12 +31,11 @@ namespace GestionRH.Models
         public virtual Departement? Departement { get; set; }
 
         // Relations
-        public virtual ICollection<Conge> Conges { get; set; }
+        // Relations
         public virtual ICollection<Paie> Paies { get; set; }
 
         public Employe()
         {
-            Conges = new HashSet<Conge>();
             Paies = new HashSet<Paie>();
             Role = "Employe";
         }
