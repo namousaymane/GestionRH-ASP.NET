@@ -4,43 +4,71 @@
     ViewData["Title"] = "Demander un congé";
 }
 
-<div class="container mt-4">
+<div class="container mt-4 mb-5">
     <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card shadow-sm">
-                <div class="card-header bg-primary text-white">
-                    <h4 class="mb-0">📝 Nouvelle demande de congé</h4>
+        <div class="col-lg-8">
+            <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
+                <div class="card-header bg-success bg-gradient text-white p-4">
+                    <div class="d-flex align-items-center">
+                        <div class="bg-white bg-opacity-25 rounded-circle p-3 me-3">
+                            <i class="bi bi-calendar-plus-fill fs-3"></i>
+                        </div>
+                        <div>
+                            <h2 class="h4 mb-1 fw-bold">Nouvelle Demande</h2>
+                            <p class="mb-0 text-white-50 small">Soumettez une nouvelle demande de congé.</p>
+                        </div>
+                    </div>
                 </div>
-                <div class="card-body">
+                <div class="card-body p-4 p-md-5 bg-light bg-opacity-10">
                     <form asp-action="Create">
-                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-4 rounded-3 border-0 shadow-sm" role="alert"></div>
 
-                        <div class="form-group mb-3">
-                            <label asp-for="Type" class="control-label fw-bold">Type de congé</label>
-                            <select asp-for="Type" class="form-select">
-                                <option value="CongeAnnuel">Congé Annuel</option>
-                                <option value="CongeMaladie">Congé Maladie</option>
-                                <option value="CongeSansSolde">Congé Sans Solde</option>
-                                <option value="Autre">Autre</option>
-                            </select>
-                            <span asp-validation-for="Type" class="text-danger"></span>
+                        <h5 class="text-success mb-3"><i class="bi bi-info-circle-fill me-2"></i>Détails de la demande</h5>
+                        
+                        <div class="mb-4">
+                            <div class="form-floating shadow-sm rounded-3">
+                                <select asp-for="Type" class="form-select border-0">
+                                    <option value="CongeAnnuel">Congé Annuel</option>
+                                    <option value="CongeMaladie">Congé Maladie</option>
+                                    <option value="CongeSansSolde">Congé Sans Solde</option>
+                                    <option value="Autre">Autre</option>
+                                </select>
+                                <label asp-for="Type">Type de congé</label>
+                            </div>
+                            <span asp-validation-for="Type" class="text-danger small ms-1"></span>
                         </div>
 
-                        <div class="form-group mb-3">
-                            <label asp-for="DateDebut" class="control-label fw-bold">Date de début</label>
-                            <input asp-for="DateDebut" class="form-control" type="date" />
-                            <span asp-validation-for="DateDebut" class="text-danger"></span>
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <div class="form-floating shadow-sm rounded-3">
+                                    <input asp-for="DateDebut" class="form-control border-0" type="date" />
+                                    <label asp-for="DateDebut">Date de début</label>
+                                </div>
+                                <span asp-validation-for="DateDebut" class="text-danger small ms-1"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-floating shadow-sm rounded-3">
+                                    <input asp-for="DateFin" class="form-control border-0" type="date" />
+                                    <label asp-for="DateFin">Date de fin</label>
+                                </div>
+                                <span asp-validation-for="DateFin" class="text-danger small ms-1"></span>
+                            </div>
                         </div>
 
-                        <div class="form-group mb-3">
-                            <label asp-for="DateFin" class="control-label fw-bold">Date de fin</label>
-                            <input asp-for="DateFin" class="form-control" type="date" />
-                            <span asp-validation-for="DateFin" class="text-danger"></span>
+                        <div class="alert alert-light border-start border-4 border-success shadow-sm rounded-3 mb-4">
+                            <div class="d-flex">
+                                <i class="bi bi-lightbulb-fill text-success me-3 fs-5"></i>
+                                <div class="small text-muted">
+                                    La durée sera calculée automatiquement. Assurez-vous d'avoir un solde suffisant pour les congés annuels.
+                                </div>
+                            </div>
                         </div>
 
-                        <div class="d-grid gap-2 mt-4">
-                            <button type="submit" class="btn btn-success btn-lg">Envoyer la demande</button>
-                            <a asp-action="Index" class="btn btn-light">Annuler</a>
+                        <div class="d-flex justify-content-end gap-3 pt-3 border-top">
+                            <a asp-action="Index" class="btn btn-light btn-lg rounded-pill px-4 fw-bold">Annuler</a>
+                            <button type="submit" class="btn btn-success btn-lg rounded-pill px-5 shadow fw-bold">
+                                <i class="bi bi-send-fill me-2"></i>Envoyer la demande
+                            </button>
                         </div>
                     </form>
                 </div>
@@ -50,7 +78,5 @@
 </div>
 
 @section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 }

@@ -1,0 +1,86 @@
+@model GestionRH.Models.Paie
+
+@{
+    ViewData["Title"] = "Modifier la paie";
+}
+
+<div class="container mt-4 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
+                <div class="card-header bg-warning bg-gradient text-dark p-4">
+                    <div class="d-flex align-items-center">
+                        <div class="bg-white bg-opacity-50 rounded-circle p-3 me-3">
+                            <i class="bi bi-pencil-square fs-3 text-dark"></i>
+                        </div>
+                        <div>
+                            <h2 class="h4 mb-1 fw-bold">Modifier la Paie</h2>
+                            <p class="mb-0 text-dark-50 small">Ajustement manuel du bulletin de paie.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body p-4 p-md-5 bg-light bg-opacity-10">
+                    <form asp-action="Edit">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-4 rounded-3 border-0 shadow-sm" role="alert"></div>
+                        <input type="hidden" asp-for="IdPaie" />
+
+                        <div class="mb-4">
+                            <div class="form-floating shadow-sm rounded-3">
+                                @if (ViewBag.Employes == null || ((Microsoft.AspNetCore.Mvc.Rendering.SelectList)ViewBag.Employes).Count() == 0)
+                                {
+                                     <select asp-for="EmployeId" class="form-select border-0" disabled>
+                                         <option value="@Model.EmployeId">@Model.Employe?.NomComplet</option>
+                                     </select>
+                                }
+                                else
+                                {
+                                    <select asp-for="EmployeId" class="form-select border-0" asp-items="ViewBag.Employes">
+                                        <option value="">-- Sélectionner un employé --</option>
+                                    </select>
+                                }
+                                <label asp-for="EmployeId">Employé</label>
+                            </div>
+                             <span asp-validation-for="EmployeId" class="text-danger small ms-1"></span>
+                        </div>
+
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <div class="form-floating shadow-sm rounded-3">
+                                    <input asp-for="Mois" class="form-control border-0" placeholder="Mois" />
+                                    <label asp-for="Mois">Mois (ex: Janvier)</label>
+                                </div>
+                                <span asp-validation-for="Mois" class="text-danger small ms-1"></span>
+                            </div>
+                             <div class="col-md-6">
+                                <div class="form-floating shadow-sm rounded-3">
+                                    <input asp-for="DateEmission" class="form-control border-0" type="date" />
+                                    <label asp-for="DateEmission">Date d'émission</label>
+                                </div>
+                                <span asp-validation-for="DateEmission" class="text-danger small ms-1"></span>
+                            </div>
+                        </div>
+
+                         <div class="mb-4">
+                            <div class="form-floating shadow-sm rounded-3">
+                                <input asp-for="Montant" class="form-control border-0 fw-bold text-success" type="number" step="0.01" placeholder="Montant" />
+                                <label asp-for="Montant">Montant Net (MAD)</label>
+                            </div>
+                            <span asp-validation-for="Montant" class="text-danger small ms-1"></span>
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-3 pt-3 border-top">
+                            <a asp-action="Details" asp-route-id="@Model.IdPaie" class="btn btn-light btn-lg rounded-pill px-4 fw-bold">Annuler</a>
+                            <button type="submit" class="btn btn-warning btn-lg rounded-pill px-5 shadow fw-bold">
+                                <i class="bi bi-check-lg me-2"></i>Enregistrer
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

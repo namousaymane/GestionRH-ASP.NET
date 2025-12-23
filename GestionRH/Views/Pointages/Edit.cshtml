@@ -1,0 +1,118 @@
+@model GestionRH.Models.Pointage
+
+@{
+    ViewData["Title"] = "Modifier le Pointage";
+}
+
+<div class="container mt-4 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
+                <div class="card-header bg-warning bg-gradient text-dark p-4">
+                    <div class="d-flex align-items-center">
+                        <div class="bg-white bg-opacity-50 rounded-circle p-3 me-3">
+                            <i class="bi bi-pencil-square fs-3 text-dark"></i>
+                        </div>
+                        <div>
+                            <h2 class="h4 mb-1 fw-bold">Modifier le Pointage</h2>
+                            <p class="mb-0 text-dark-50 small">Correction ou mise à jour du pointage.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body p-4 p-md-5 bg-light bg-opacity-10">
+                    <form asp-action="Edit" method="post">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-4 rounded-3 border-0 shadow-sm" role="alert"></div>
+                        <input type="hidden" asp-for="Id" />
+
+                         <h5 class="text-warning text-dark-emphasis mb-3"><i class="bi bi-person-fill me-2"></i>Employé & Date</h5>
+                        
+                        <div class="mb-4">
+                            <div class="form-floating shadow-sm rounded-3">
+                                <select asp-for="EmployeId" class="form-select border-0" asp-items="ViewBag.Employes" required>
+                                    <option value="">-- Sélectionner un employé --</option>
+                                </select>
+                                <label asp-for="EmployeId">Employé</label>
+                            </div>
+                            <span asp-validation-for="EmployeId" class="text-danger small ms-1"></span>
+                        </div>
+
+                        <div class="mb-4">
+                            <div class="form-floating shadow-sm rounded-3">
+                                <input asp-for="DatePointage" class="form-control border-0" type="date" required />
+                                <label asp-for="DatePointage">Date de pointage</label>
+                            </div>
+                            <span asp-validation-for="DatePointage" class="text-danger small ms-1"></span>
+                        </div>
+
+                        <h5 class="text-warning text-dark-emphasis mb-3"><i class="bi bi-stopwatch-fill me-2"></i>Horaires</h5>
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <div class="form-floating shadow-sm rounded-3">
+                                    <input asp-for="HeureArrivee" class="form-control border-0" type="datetime-local" id="HeureArrivee" />
+                                    <label asp-for="HeureArrivee">Heure d'arrivée</label>
+                                </div>
+                                <span asp-validation-for="HeureArrivee" class="text-danger small ms-1"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-floating shadow-sm rounded-3">
+                                    <input asp-for="HeureDepart" class="form-control border-0" type="datetime-local" id="HeureDepart" />
+                                    <label asp-for="HeureDepart">Heure de départ</label>
+                                </div>
+                                <span asp-validation-for="HeureDepart" class="text-danger small ms-1"></span>
+                            </div>
+                        </div>
+
+                        <div class="form-check form-switch mb-4 p-3 bg-white rounded-3 shadow-sm border">
+                             <input asp-for="EstAbsent" class="form-check-input ms-0 me-3" type="checkbox" role="switch" id="EstAbsent" style="float: none;" />
+                             <label asp-for="EstAbsent" class="form-check-label fw-bold text-danger">Marquer comme Absent</label>
+                        </div>
+
+                        <div class="mb-4">
+                            <div class="form-floating shadow-sm rounded-3">
+                                <textarea asp-for="Remarques" class="form-control border-0" style="height: 100px" placeholder="Remarques"></textarea>
+                                <label asp-for="Remarques">Remarques / Notes</label>
+                            </div>
+                            <span asp-validation-for="Remarques" class="text-danger small ms-1"></span>
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-3 pt-3 border-top">
+                            <a asp-action="Index" class="btn btn-light btn-lg rounded-pill px-4 fw-bold">Annuler</a>
+                            <button type="submit" class="btn btn-warning btn-lg rounded-pill px-5 shadow fw-bold">
+                                <i class="bi bi-check-lg me-2"></i>Enregistrer
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+    <script>
+        $(document).ready(function() {
+            // Si "EstAbsent" est coché, désactiver les champs d'heures
+            $('#EstAbsent').change(function() {
+                if ($(this).is(':checked')) {
+                    $('#HeureArrivee, #HeureDepart').prop('disabled', true).val('');
+                } else {
+                    $('#HeureArrivee, #HeureDepart').prop('disabled', false);
+                }
+            });
+
+             // Si une heure d'arrivée ou départ est saisie, s'assurer que "EstAbsent" est décoché
+            $('#HeureArrivee, #HeureDepart').change(function() {
+                if ($(this).val()) {
+                    $('#EstAbsent').prop('checked', false);
+                }
+            });
+            
+             // Initial check on load
+             if ($('#EstAbsent').is(':checked')) {
+                $('#HeureArrivee, #HeureDepart').prop('disabled', true);
+            }
+        });
+    </script>
+}

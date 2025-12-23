@@ -1,0 +1,60 @@
+@model IEnumerable<GestionRH.Models.Responsable>
+
+@{
+    ViewData["Title"] = "Liste des Responsables";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1>Liste des Responsables</h1>
+        <a asp-action="Create" class="btn btn-primary">
+            Nouvel Responsable
+        </a>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body p-0">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Nom Complet</th>
+                        <th>Email</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!Model.Any())
+                    {
+                        <tr>
+                            <td colspan="3" class="text-center py-4 text-muted">Aucun responsable trouvé.</td>
+                        </tr>
+                    }
+                    else
+                    {
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td class="fw-bold">@item.NomComplet</td>
+                                <td>@item.Email</td>
+                                <td>
+                                    <div class="d-flex justify-content-start">
+                                        <a asp-action="Details" asp-route-id="@item.Id" class="btn-icon btn-icon-info me-2" title="Détails">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn-icon btn-icon-warning me-2" title="Modifier">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <a asp-action="Delete" asp-route-id="@item.Id" class="btn-icon btn-icon-danger" title="Supprimer">
+                                            <i class="bi bi-trash"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+

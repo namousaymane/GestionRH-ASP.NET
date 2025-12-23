@@ -1,8 +1,359 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model GestionRH.Controllers.DashboardStats
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<GestionRH.Models.Utilisateur> UserManager
+
+@{
+    ViewData["Title"] = "Tableau de bord";
+    var user = await UserManager.GetUserAsync(User);
+    var userRole = user?.Role;
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+@if (user == null)
+{
+    <div class="hero-landing-wrapper fade-in d-flex align-items-center justify-content-center" style="min-height: 85vh;">
+        <div class="text-center p-5 animate-pop"> <!-- Removed glass-card -->
+            <div class="mb-4">
+                 <div class="d-inline-flex align-items-center justify-content-center p-4 mb-3 animate-float" style="width: 100px; height: 100px;">
+                    <i class="bi bi-diagram-3-fill display-3 text-white"></i>
+                 </div>
+            </div>
+            
+            <h1 class="display-3 fw-bold mb-3 text-white animate-slide-up">Bienvenue sur <span class="text-shimmer">GestionRH</span></h1>
+            <p class="lead text-white-50 mb-5 mx-auto animate-slide-up delay-1" style="max-width: 600px;">
+                La plateforme centralisée pour la gestion de votre capital humain. 
+                <br>Connectez-vous pour accéder à votre espace.
+            </p>
+
+            <div class="d-flex gap-3 justify-content-center animate-pop delay-2">
+                <a asp-area="Identity" asp-page="/Account/Login" class="btn btn-primary btn-lg px-5 py-3 fs-5 fw-bold shadow-sm rounded-pill hover-glow animate-pulse-glow">
+                    <i class="bi bi-box-arrow-in-right me-2"></i> Se connecter
+                </a>
+                <a asp-area="Identity" asp-page="/Account/Register" class="btn btn-outline-primary btn-lg px-5 py-3 fs-5 fw-bold rounded-pill hover-glow"> <!-- Reverted to btn-outline-primary -->
+                    <i class="bi bi-person-plus me-2"></i> Créer un compte
+                </a>
+            </div>
+
+            <div class="mt-5 pt-5 opacity-50 animate-slide-up delay-3">
+                <small class="text-white-50">&copy; @DateTime.Now.Year - GestionRH Enterprise</small>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="row g-4">
+        <!-- Stats Row -->
+        @if (userRole == "AdministrateurRH")
+        {
+            <div class="col-xl-3 col-md-6">
+                <div class="card kpi-card">
+                    <div class="card-body">
+                        <div class="stat-icon-wrapper bg-light-primary">
+                            <i class="bi bi-briefcase-fill"></i>
+                        </div>
+                        <h6 class="text-muted text-uppercase fw-bold mb-1">Total Employés</h6>
+                        <h2 class="fw-bold mb-0">@Model.TotalEmployes</h2>
+                        <a asp-controller="Employes" asp-action="Index" class="stretched-link"></a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-md-6">
+                <div class="card kpi-card">
+                    <div class="card-body">
+                        <div class="stat-icon-wrapper bg-light-info">
+                            <i class="bi bi-person-badge-fill"></i>
+                        </div>
+                        <h6 class="text-muted text-uppercase fw-bold mb-1">Responsables</h6>
+                        <h2 class="fw-bold mb-0">@Model.TotalResponsables</h2>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-md-6">
+                <div class="card kpi-card">
+                    <div class="card-body">
+                        <div class="stat-icon-wrapper bg-light-warning">
+                            <i class="bi bi-hourglass-split"></i>
+                        </div>
+                        <h6 class="text-muted text-uppercase fw-bold mb-1">Congés en Attente</h6>
+                        <h2 class="fw-bold mb-0">@Model.CongesEnAttente</h2>
+                        <a asp-controller="Conges" asp-action="Index" class="stretched-link"></a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-md-6">
+                <div class="card kpi-card">
+                    <div class="card-body">
+                        <div class="stat-icon-wrapper bg-light-success">
+                            <i class="bi bi-cash-stack"></i>
+                        </div>
+                        <h6 class="text-muted text-uppercase fw-bold mb-1">Total Paies</h6>
+                        <h2 class="fw-bold mb-0">@Model.TotalPaies</h2>
+                        <a asp-controller="Paies" asp-action="Index" class="stretched-link"></a>
+                    </div>
+                </div>
+            </div>
+        }
+        else if (userRole == "Responsable")
+        {
+            <div class="col-xl-4 col-md-6">
+                 <div class="card kpi-card">
+                    <div class="card-body">
+                        <div class="stat-icon-wrapper bg-light-primary">
+                            <i class="bi bi-people-fill"></i>
+                        </div>
+                        <h6 class="text-muted text-uppercase fw-bold mb-1">Mon Équipe</h6>
+                        <h2 class="fw-bold mb-0">@Model.TotalEmployes</h2>
+                        <a asp-controller="Employes" asp-action="Index" class="stretched-link"></a>
+                    </div>
+                </div>
+            </div>
+            
+             <div class="col-xl-4 col-md-6">
+                <div class="card kpi-card">
+                    <div class="card-body">
+                        <div class="stat-icon-wrapper bg-light-warning">
+                            <i class="bi bi-calendar-check"></i>
+                        </div>
+                        <h6 class="text-muted text-uppercase fw-bold mb-1">Congés Équipe</h6>
+                        <h2 class="fw-bold mb-0">@Model.TotalConges</h2>
+                        <a asp-controller="Conges" asp-action="Index" class="stretched-link"></a>
+                    </div>
+                </div>
+            </div>
+
+             <div class="col-xl-4 col-md-6">
+                <div class="card kpi-card">
+                     <div class="card-body">
+                        <div class="stat-icon-wrapper bg-light-danger">
+                            <i class="bi bi-exclamation-circle"></i>
+                        </div>
+                        <h6 class="text-danger text-uppercase fw-bold mb-1">À Valider</h6>
+                        <h2 class="fw-bold mb-0">@Model.CongesEnAttente</h2>
+                        <a asp-controller="Conges" asp-action="Index" class="stretched-link"></a>
+                    </div>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="col-xl-4 col-md-6">
+                <div class="card kpi-card">
+                    <div class="card-body">
+                         <div class="stat-icon-wrapper bg-light-primary">
+                            <i class="bi bi-calendar-range"></i>
+                        </div>
+                        <h6 class="text-muted text-uppercase fw-bold mb-1">Mes Congés</h6>
+                        <h2 class="fw-bold mb-0">@Model.TotalConges</h2>
+                        <a asp-controller="Conges" asp-action="Index" class="stretched-link"></a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-4 col-md-6">
+                <div class="card kpi-card">
+                    <div class="card-body">
+                        <div class="stat-icon-wrapper bg-light-warning">
+                            <i class="bi bi-hourglass"></i>
+                        </div>
+                        <h6 class="text-muted text-uppercase fw-bold mb-1">En Attente</h6>
+                        <h2 class="fw-bold mb-0">@Model.CongesEnAttente</h2>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-xl-4 col-md-6">
+                <div class="card kpi-card">
+                    <div class="card-body">
+                        <div class="stat-icon-wrapper bg-light-success">
+                            <i class="bi bi-wallet2"></i>
+                        </div>
+                        <h6 class="text-muted text-uppercase fw-bold mb-1">Mes Paies</h6>
+                        <h2 class="fw-bold mb-0">@Model.TotalPaies</h2>
+                        <a asp-controller="Paies" asp-action="Index" class="stretched-link"></a>
+                    </div>
+                </div>
+            </div>
+        }
+
+        <!-- Charts Section -->
+        <div class="col-md-8">
+            <div class="card h-100">
+                <div class="card-header bg-transparent border-0 py-3">
+                    <h5 class="mb-0 fw-bold">Activité Congés</h5>
+                </div>
+                <div class="card-body">
+                     <canvas id="congesParMoisChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-header bg-transparent border-0 py-3">
+                    <h5 class="mb-0 fw-bold">Répartition</h5>
+                </div>
+                <div class="card-body d-flex align-items-center justify-content-center">
+                    <canvas id="congesParStatutChart"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        @if (userRole == "AdministrateurRH")
+        {
+             <div class="col-12">
+                <div class="card">
+                    <div class="card-header bg-transparent border-0 py-3">
+                         <h5 class="mb-0 fw-bold">Analyse par Département</h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="congesParDepartementChart" height="80"></canvas>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            loadChartData();
+        });
+
+        async function loadChartData() {
+            try {
+                const response = await fetch('@Url.Action("GetChartData", "Home")');
+                const data = await response.json();
+
+                // Graphique : Congés par mois
+                if (data.congesParMois && data.congesParMois.length > 0) {
+                    const ctx1 = document.getElementById('congesParMoisChart');
+                    if (ctx1) {
+                        new Chart(ctx1, {
+                            type: 'line',
+                            data: {
+                                labels: data.congesParMois.map(item => item.mois),
+                                datasets: [{
+                                    label: 'Nombre de congés',
+                                    data: data.congesParMois.map(item => item.count),
+                                    borderColor: 'rgb(75, 192, 192)',
+                                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                                    tension: 0.1
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                plugins: {
+                                    title: {
+                                        display: true,
+                                        text: 'Évolution des congés (6 derniers mois)'
+                                    }
+                                }
+                            }
+                        });
+                    }
+                }
+
+                // Graphique : Congés par statut (camembert - mis en évidence)
+                if (data.congesParStatut && data.congesParStatut.length > 0) {
+                    const ctx2 = document.getElementById('congesParStatutChart');
+                    if (ctx2) {
+                        new Chart(ctx2, {
+                            type: 'doughnut',
+                            data: {
+                                labels: data.congesParStatut.map(item => item.statut),
+                                datasets: [{
+                                    data: data.congesParStatut.map(item => item.count),
+                                    backgroundColor: [
+                                        'rgba(255, 206, 86, 0.9)',
+                                        'rgba(75, 192, 192, 0.9)',
+                                        'rgba(255, 99, 132, 0.9)'
+                                    ],
+                                    borderWidth: 2,
+                                    borderColor: '#fff'
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: true,
+                                plugins: {
+                                    legend: {
+                                        position: 'bottom',
+                                        labels: {
+                                            padding: 15,
+                                            font: {
+                                                size: 12
+                                            }
+                                        }
+                                    },
+                                    tooltip: {
+                                        enabled: true
+                                    }
+                                }
+                            }
+                        });
+                    }
+                }
+
+                // Graphique : Congés par département (Admin seulement)
+                if (data.congesParDepartement && data.congesParDepartement.length > 0) {
+                    const ctx3 = document.getElementById('congesParDepartementChart');
+                    if (ctx3) {
+                        new Chart(ctx3, {
+                            type: 'bar',
+                            data: {
+                                labels: data.congesParDepartement.map(item => item.departement),
+                                datasets: [{
+                                    label: 'Nombre de congés',
+                                    data: data.congesParDepartement.map(item => item.count),
+                                    backgroundColor: 'rgba(54, 162, 235, 0.8)'
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                plugins: {
+                                    title: {
+                                        display: true,
+                                        text: 'Congés par département'
+                                    }
+                                }
+                            }
+                        });
+                    }
+                }
+
+                // Graphique : Paies par mois
+                if (data.paiesParMois && data.paiesParMois.length > 0) {
+                    const ctx4 = document.getElementById('paiesParMoisChart');
+                    if (ctx4) {
+                        new Chart(ctx4, {
+                            type: 'bar',
+                            data: {
+                                labels: data.paiesParMois.map(item => item.mois),
+                                datasets: [{
+                                    label: 'Nombre de paies',
+                                    data: data.paiesParMois.map(item => item.count),
+                                    backgroundColor: 'rgba(75, 192, 192, 0.8)'
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                plugins: {
+                                    title: {
+                                        display: true,
+                                        text: 'Paies par mois (6 derniers mois)'
+                                    }
+                                }
+                            }
+                        });
+                    }
+                }
+            } catch (error) {
+                console.error('Erreur lors du chargement des graphiques:', error);
+            }
+        }
+    </script>
+}

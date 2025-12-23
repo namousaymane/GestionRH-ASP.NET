@@ -1,0 +1,116 @@
+@model GestionRH.Models.Pointage
+@using Microsoft.AspNetCore.Identity
+@using GestionRH.Models
+@inject UserManager<Utilisateur> UserManager
+
+@{
+    ViewData["Title"] = "Détails du Pointage";
+    var currentUser = await UserManager.GetUserAsync(User);
+    var userRole = currentUser?.Role;
+}
+
+<div class="container mt-4 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
+                <div class="card-header bg-primary text-white p-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center">
+                            <div class="bg-white bg-opacity-25 rounded-circle p-3 me-3">
+                                <i class="bi bi-clock-history fs-2"></i>
+                            </div>
+                            <div>
+                                <h1 class="h4 mb-0 fw-bold">Détails du Pointage</h1>
+                                <p class="mb-0 text-white-50">@Model.DatePointage.ToLongDateString()</p>
+                            </div>
+                        </div>
+                         @if (Model.EstAbsent)
+                        {
+                            <span class="badge bg-danger border border-danger rounded-pill px-3 py-2 shadow-sm"><i class="bi bi-x-circle me-1"></i>Absent</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-success border border-success rounded-pill px-3 py-2 shadow-sm"><i class="bi bi-check-circle me-1"></i>Présent</span>
+                        }
+                    </div>
+                </div>
+                
+                <div class="card-body p-4 p-md-5 bg-light bg-opacity-10">
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <h5 class="text-primary border-bottom pb-2 mb-3"><i class="bi bi-person-circle me-2"></i>Employé</h5>
+                             <dl class="row mb-0">
+                                <dt class="col-sm-4 text-muted">Nom</dt>
+                                <dd class="col-sm-8 fw-bold">@(Model.Employe?.NomComplet ?? "Inconnu")</dd>
+                                
+                                <dt class="col-sm-4 text-muted">Poste</dt>
+                                <dd class="col-sm-8 text-muted">@(Model.Employe?.Poste ?? "-")</dd>
+                            </dl>
+
+                            <h5 class="text-primary border-bottom pb-2 mb-3 mt-4"><i class="bi bi-card-text me-2"></i>Remarques</h5>
+                            @if (!string.IsNullOrEmpty(Model.Remarques))
+                            {
+                                <p class="text-muted small bg-white p-3 rounded-3 shadow-sm">@Model.Remarques</p>
+                            }
+                            else
+                            {
+                                 <p class="text-muted fst-italic">Aucune remarque</p>
+                            }
+                        </div>
+                        <div class="col-md-6">
+                             <h5 class="text-primary border-bottom pb-2 mb-3"><i class="bi bi-stopwatch me-2"></i>Horaires & Durée</h5>
+                             <dl class="row mb-0">
+                                <dt class="col-sm-4 text-muted">Arrivée</dt>
+                                <dd class="col-sm-8">
+                                    @if(Model.HeureArrivee.HasValue) {
+                                        <span class="fw-bold text-success">@Model.HeureArrivee.Value.ToString("HH:mm")</span>
+                                    } else { <span class="text-muted">-</span> }
+                                </dd>
+
+                                <dt class="col-sm-4 text-muted">Départ</dt>
+                                <dd class="col-sm-8">
+                                     @if(Model.HeureDepart.HasValue) {
+                                        <span class="fw-bold text-danger">@Model.HeureDepart.Value.ToString("HH:mm")</span>
+                                    } else { <span class="text-muted">-</span> }
+                                </dd>
+
+                                <dt class="col-sm-4 text-muted">Durée</dt>
+                                <dd class="col-sm-8 fw-bold">
+                                    @if (Model.DureeTravail.HasValue)
+                                    {
+                                        <span>@((int)Model.DureeTravail.Value.TotalHours)h @Model.DureeTravail.Value.Minutes min</span>
+                                    }
+                                    else { <span class="text-muted">-</span> }
+                                </dd>
+                                
+                                <dt class="col-sm-4 text-muted">Heures Sup.</dt>
+                                <dd class="col-sm-8">
+                                    @if (Model.HeuresSupplementaires.HasValue && Model.HeuresSupplementaires.Value > 0)
+                                    {
+                                        <span class="badge bg-warning text-dark">@Model.HeuresSupplementaires.Value.ToString("F2") h</span>
+                                    } else { <span class="text-muted">Aucune</span> }
+                                </dd>
+                            </dl>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2 mt-5 pt-3 border-top">
+                        @if (userRole == "AdministrateurRH")
+                        {
+                            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning btn-lg rounded-pill px-4 shadow-sm">
+                                <i class="bi bi-pencil-square me-2"></i>Modifier
+                            </a>
+                            <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger btn-lg rounded-pill px-4 shadow-sm">
+                                <i class="bi bi-trash-fill me-2"></i>Supprimer
+                            </a>
+                        }
+                        
+                        <a asp-action="Index" class="btn btn-secondary btn-lg rounded-pill px-4 shadow-sm">
+                            <i class="bi bi-arrow-left me-2"></i>Retour
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

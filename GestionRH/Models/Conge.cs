@@ -22,19 +22,19 @@ namespace GestionRH.Models
         [Required]
         [MaxLength(50)]
         [Display(Name = "Type")]
-        public string Type { get; set; }
+        public string Type { get; set; } = null!;
 
         [Required]
         [MaxLength(50)]
         [Display(Name = "Statut")]
         public string Statut { get; set; } = "EnAttente";
 
-        // Relation avec Employe
+        // Relation avec Utilisateur
         [Required]
-        public string EmployeId { get; set; }
+        public string EmployeId { get; set; } = null!;
 
         [ForeignKey("EmployeId")]
-        public virtual Employe Employe { get; set; }
+        public virtual Utilisateur? Employe { get; set; }
 
         // Méthodes
         public int CalculerDuree()

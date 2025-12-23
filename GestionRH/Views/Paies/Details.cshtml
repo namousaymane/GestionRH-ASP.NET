@@ -1,0 +1,148 @@
+@model GestionRH.Models.Paie
+@inject Microsoft.AspNetCore.Identity.UserManager<GestionRH.Models.Utilisateur> UserManager
+
+@{
+    ViewData["Title"] = "Détails de la paie";
+}
+
+<div class="container mt-4 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
+                <div class="card-header bg-primary text-white p-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center">
+                            <div class="bg-white bg-opacity-25 rounded-circle p-3 me-3">
+                                <i class="bi bi-receipt-cutoff fs-2"></i>
+                            </div>
+                            <div>
+                                <h1 class="h4 mb-0 fw-bold">Bulletin de Paie</h1>
+                                <p class="mb-0 text-white-50">@Model.Mois @Model.DateEmission.Year</p>
+                            </div>
+                        </div>
+                        <div class="text-end">
+                            <div class="text-white-50 small text-uppercase">Net à Payer</div>
+                            <div class="fw-bold fs-3">@Model.Montant.ToString("C")</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card-body p-4 p-md-5 bg-light bg-opacity-10">
+                    <div class="row g-4 mb-5">
+                        <div class="col-md-6">
+                            <h5 class="text-primary border-bottom pb-2 mb-3"><i class="bi bi-person-circle me-2"></i>Bénéficiaire</h5>
+                             <dl class="row mb-0">
+                                <dt class="col-sm-4 text-muted">Nom</dt>
+                                <dd class="col-sm-8 fw-bold">@(Model.Employe?.NomComplet ?? "Inconnu")</dd>
+                                
+                                <dt class="col-sm-4 text-muted">Poste</dt>
+                                <dd class="col-sm-8 text-muted">@(Model.Employe?.Poste ?? "-")</dd>
+
+                                @* <dt class="col-sm-4 text-muted">RIB</dt>
+                                <dd class="col-sm-8 font-monospace small">@(Model.Employe?.NumeroCompteBancaire ?? "-")</dd> *@
+                            </dl>
+                        </div>
+                        <div class="col-md-6">
+                             <h5 class="text-primary border-bottom pb-2 mb-3"><i class="bi bi-info-circle me-2"></i>Infos Bulletin</h5>
+                             <dl class="row mb-0">
+                                <dt class="col-sm-4 text-muted">Mois</dt>
+                                <dd class="col-sm-8"><span class="badge bg-info text-dark">@Model.Mois</span></dd>
+
+                                <dt class="col-sm-4 text-muted">Date émission</dt>
+                                <dd class="col-sm-8">@Model.DateEmission.ToShortDateString()</dd>
+                            </dl>
+                        </div>
+                    </div>
+
+                    <h5 class="text-primary border-bottom pb-2 mb-3"><i class="bi bi-list-check me-2"></i>Détail du Calcul</h5>
+                     @if (Model.LignesPaie != null && Model.LignesPaie.Any())
+                    {
+                        <div class="table-responsive shadow-sm rounded-3 overflow-hidden border">
+                            <table class="table table-hover mb-0 bg-white">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th class="ps-4">Libellé</th>
+                                        <th class="text-center">Type</th>
+                                        <th class="text-end pe-4">Montant</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @{
+                                        decimal totalGains = 0;
+                                        decimal totalRetenues = 0;
+                                    }
+                                    @foreach (var ligne in Model.LignesPaie.OrderBy(l => l.Ordre))
+                                    {
+                                        <tr>
+                                            <td class="ps-4 fw-medium">@ligne.Libelle</td>
+                                            <td class="text-center">
+                                                @if (ligne.Type == "Gain")
+                                                {
+                                                    <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-3">Gain</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-danger bg-opacity-10 text-danger rounded-pill px-3">Retenue</span>
+                                                }
+                                            </td>
+                                            <td class="text-end pe-4 fw-bold">
+                                                @if (ligne.Type == "Gain")
+                                                {
+                                                    <span class="text-success">+@ligne.Montant.ToString("N2")</span>
+                                                    totalGains += ligne.Montant;
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-danger">-@ligne.Montant.ToString("N2")</span>
+                                                    totalRetenues += ligne.Montant;
+                                                }
+                                                 MAD
+                                            </td>
+                                        </tr>
+                                    }
+                                    <tr class="table-primary fw-bold fs-5">
+                                        <td colspan="2" class="ps-4 text-primary">NET À PAYER</td>
+                                        <td class="text-end pe-4 text-primary">@Model.Montant.ToString("C")</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                         <div class="alert alert-info d-flex align-items-center rounded-3 p-3">
+                            <i class="bi bi-info-circle-fill fs-4 me-3"></i>
+                            <div>
+                                Détails non disponibles pour ce bulletin. Salaire de base : <strong>@(Model.Employe?.Salaire.ToString("C"))</strong>
+                            </div>
+                        </div>
+                    }
+
+                    <div class="d-flex justify-content-between align-items-center mt-5 pt-3 border-top">
+                        <a asp-action="DownloadPdf" asp-route-id="@Model.IdPaie" class="btn btn-outline-danger btn-lg rounded-pill px-4 shadow-sm">
+                            <i class="bi bi-file-earmark-pdf-fill me-2"></i>Télécharger PDF
+                        </a>
+                        
+                        <div class="d-flex gap-2">
+                             @{
+                                var user = await UserManager.GetUserAsync(User);
+                                if (user?.Role == "AdministrateurRH")
+                                {
+                                    <a asp-action="Edit" asp-route-id="@Model.IdPaie" class="btn btn-warning btn-lg rounded-pill px-3 shadow-sm" title="Modifier">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </a>
+                                    <a asp-action="Delete" asp-route-id="@Model.IdPaie" class="btn btn-danger btn-lg rounded-pill px-3 shadow-sm" title="Supprimer">
+                                        <i class="bi bi-trash-fill"></i>
+                                    </a>
+                                }
+                            }
+                            <a asp-action="Index" class="btn btn-secondary btn-lg rounded-pill px-4 shadow-sm">
+                                <i class="bi bi-arrow-left me-2"></i>Retour
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

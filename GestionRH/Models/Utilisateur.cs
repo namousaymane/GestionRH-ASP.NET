@@ -32,5 +32,13 @@ namespace GestionRH.Models
 
         [Display(Name = "Nom complet")]
         public string NomComplet => $"{Prenom} {Nom}".Trim();
+
+        // Relations
+        public virtual ICollection<Conge> Conges { get; set; }
+
+        public Utilisateur()
+        {
+            Conges = new HashSet<Conge>();
+        }
     }
 }

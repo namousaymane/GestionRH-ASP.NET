@@ -1,0 +1,100 @@
+@model GestionRH.Models.Conge
+@inject Microsoft.AspNetCore.Identity.UserManager<GestionRH.Models.Utilisateur> UserManager
+
+@{
+    ViewData["Title"] = "Modifier le congé";
+}
+
+<div class="container mt-4 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
+                <div class="card-header bg-warning bg-gradient text-dark p-4">
+                    <div class="d-flex align-items-center">
+                        <div class="bg-white bg-opacity-50 rounded-circle p-3 me-3">
+                            <i class="bi bi-pencil-square fs-3 text-dark"></i>
+                        </div>
+                        <div>
+                            <h2 class="h4 mb-1 fw-bold">Modifier la Demande</h2>
+                            <p class="mb-0 text-dark-50 small">Mise à jour de la demande de congé.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body p-4 p-md-5 bg-light bg-opacity-10">
+                    <form asp-action="Edit">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-4 rounded-3 border-0 shadow-sm" role="alert"></div>
+                        <input type="hidden" asp-for="IdConge" />
+                        <input type="hidden" asp-for="EmployeId" />
+
+                        <h5 class="text-warning text-dark-emphasis mb-3"><i class="bi bi-calendar-range-fill me-2"></i>Période & Type</h5>
+                        
+                        <div class="mb-4">
+                            <div class="form-floating shadow-sm rounded-3">
+                                <select asp-for="Type" class="form-select border-0">
+                                    <option value="CongeAnnuel">Congé Annuel</option>
+                                    <option value="CongeMaladie">Congé Maladie</option>
+                                    <option value="CongeSansSolde">Congé Sans Solde</option>
+                                    <option value="Autre">Autre</option>
+                                </select>
+                                <label asp-for="Type">Type de congé</label>
+                            </div>
+                            <span asp-validation-for="Type" class="text-danger small ms-1"></span>
+                        </div>
+
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <div class="form-floating shadow-sm rounded-3">
+                                    <input asp-for="DateDebut" class="form-control border-0" type="date" />
+                                    <label asp-for="DateDebut">Date de début</label>
+                                </div>
+                                <span asp-validation-for="DateDebut" class="text-danger small ms-1"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-floating shadow-sm rounded-3">
+                                    <input asp-for="DateFin" class="form-control border-0" type="date" />
+                                    <label asp-for="DateFin">Date de fin</label>
+                                </div>
+                                <span asp-validation-for="DateFin" class="text-danger small ms-1"></span>
+                            </div>
+                        </div>
+
+                        @{
+                            var user = await UserManager.GetUserAsync(User);
+                            if (user?.Role == "AdministrateurRH")
+                            {
+                                 <h5 class="text-warning text-dark-emphasis mb-3 mt-4"><i class="bi bi-shield-check-fill me-2"></i>Administration</h5>
+                                <div class="mb-4">
+                                    <div class="form-floating shadow-sm rounded-3">
+                                        <select asp-for="Statut" class="form-select border-0">
+                                            <option value="EnAttente">En attente</option>
+                                            <option value="ValideManager">Validé Manager</option>
+                                            <option value="Valide">Validé RH</option>
+                                            <option value="Refuse">Refusé</option>
+                                        </select>
+                                        <label asp-for="Statut">Statut de la demande</label>
+                                    </div>
+                                    <span asp-validation-for="Statut" class="text-danger small ms-1"></span>
+                                </div>
+                            }
+                            else
+                            {
+                                <input type="hidden" asp-for="Statut" />
+                            }
+                        }
+
+                        <div class="d-flex justify-content-end gap-3 pt-3 border-top">
+                            <a asp-action="Details" asp-route-id="@Model.IdConge" class="btn btn-light btn-lg rounded-pill px-4 fw-bold">Annuler</a>
+                            <button type="submit" class="btn btn-warning btn-lg rounded-pill px-5 shadow fw-bold">
+                                <i class="bi bi-check-lg me-2"></i>Enregistrer
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

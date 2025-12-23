@@ -71,6 +71,13 @@ namespace GestionRH.Areas.Identity.Pages.Account
         /// </summary>
         public class InputModel
         {
+            [Required]
+            [Display(Name = "Nom")]
+            public string Nom { get; set; }
+
+            [Required]
+            [Display(Name = "Prénom")]
+            public string Prenom { get; set; }
             /// <summary>
             ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
             ///     directly from your code. This API may change or be removed in future releases.
@@ -169,8 +176,9 @@ namespace GestionRH.Areas.Identity.Pages.Account
                 // J'ai SUPPRIMÉ la ligne : nouvelEmploye.DateEmbauche = DateTime.Now;
 
                 // Gestion des noms par défaut si nécessaire
-                if (string.IsNullOrEmpty(nouvelEmploye.Nom)) nouvelEmploye.Nom = "Nouveau";
-                if (string.IsNullOrEmpty(nouvelEmploye.Prenom)) nouvelEmploye.Prenom = "Membre";
+                // Affectation des noms saisis
+                nouvelEmploye.Nom = Input.Nom;
+                nouvelEmploye.Prenom = Input.Prenom;
 
                 return nouvelEmploye;
             }

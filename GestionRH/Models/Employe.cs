@@ -11,25 +11,31 @@ namespace GestionRH.Models
         [Required]
         [MaxLength(100)]
         [Display(Name = "Poste")]
-        public string Poste { get; set; }
+        public string Poste { get; set; } = null!;
 
         [Required]
         [Column(TypeName = "decimal(18,2)")]
         [Display(Name = "Salaire")]
         public decimal Salaire { get; set; }
 
-        // --- C'est cette ligne qui manque pour que le build fonctionne ---
         [Display(Name = "Manager")]
         public string? ManagerId { get; set; }
-        // ----------------------------------------------------------------
+
+        [Display(Name = "Solde de congés (jours)")]
+        public int SoldeConges { get; set; } = 18;
+
+        [Display(Name = "Département")]
+        public int? DepartementId { get; set; }
+
+        [ForeignKey("DepartementId")]
+        public virtual Departement? Departement { get; set; }
 
         // Relations
-        public virtual ICollection<Conge> Conges { get; set; }
+        // Relations
         public virtual ICollection<Paie> Paies { get; set; }
 
         public Employe()
         {
-            Conges = new HashSet<Conge>();
             Paies = new HashSet<Paie>();
             Role = "Employe";
         }

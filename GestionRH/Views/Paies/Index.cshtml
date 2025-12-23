@@ -1,0 +1,121 @@
+﻿@model IEnumerable<GestionRH.Models.Paie>
+@using Microsoft.AspNetCore.Identity
+@using GestionRH.Models
+@inject UserManager<Utilisateur> UserManager
+
+@{
+    ViewData["Title"] = "Bulletins de Paie";
+    var user = await UserManager.GetUserAsync(User);
+    var isAdmin = user?.Role == "AdministrateurRH";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Bulletins de Paie</h1>
+
+        @if (isAdmin)
+        {
+            <a asp-action="Create" class="btn btn-success">
+                <i class="bi bi-calculator"></i> Générer une paie
+            </a>
+        }
+    </div>
+
+    <!-- Formulaire de recherche et filtres -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-light">
+            <h5 class="mb-0"><i class="bi bi-funnel"></i> Recherche et Filtres</h5>
+        </div>
+        <div class="card-body">
+            <form method="get" asp-action="Index" class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label">Recherche</label>
+                    <input type="text" name="searchString" class="form-control" placeholder="Nom, prénom, mois..." value="@ViewBag.SearchString" />
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Mois</label>
+                    <select name="moisFilter" class="form-select">
+                        <option value="">Tous</option>
+                        @foreach (var mois in ViewBag.Mois as List<string> ?? new List<string>())
+                        {
+                            <option value="@mois" selected="@(ViewBag.MoisFilter == mois)">@mois</option>
+                        }
+                    </select>
+                </div>
+                @if (isAdmin)
+                {
+                    <div class="col-md-3">
+                        <label class="form-label">Employé</label>
+                        <select name="employeFilter" class="form-select">
+                            <option value="">Tous</option>
+                            @foreach (var emp in ViewBag.Employes as List<GestionRH.Models.Employe> ?? new List<GestionRH.Models.Employe>())
+                            {
+                                <option value="@emp.Id" selected="@(ViewBag.EmployeFilter == emp.Id)">@emp.NomComplet</option>
+                            }
+                        </select>
+                    </div>
+                }
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-search"></i> Rechercher
+                    </button>
+                </div>
+                @if (!string.IsNullOrEmpty(ViewBag.SearchString as string) || 
+                     !string.IsNullOrEmpty(ViewBag.MoisFilter as string) ||
+                     !string.IsNullOrEmpty(ViewBag.EmployeFilter as string))
+                {
+                    <div class="col-12">
+                        <a asp-action="Index" class="btn btn-outline-secondary btn-sm">
+                            <i class="bi bi-x-circle"></i> Réinitialiser les filtres
+                        </a>
+                    </div>
+                }
+            </form>
+        </div>
+    </div>
+
+    <table class="table table-striped table-hover shadow-sm">
+        <thead class="table-dark">
+            <tr>
+                <th>Employé</th>
+                <th>Mois / Année</th>
+                <th>Date d'émission</th>
+                <th class="text-end">Montant Net</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (!Model.Any())
+            {
+                <tr>
+                    <td colspan="5" class="text-center text-muted">Aucun bulletin de paie disponible.</td>
+                </tr>
+            }
+            else
+            {
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>
+                            <strong>@item.Employe?.NomComplet</strong><br />
+                            <small class="text-muted">@item.Employe?.Poste</small>
+                        </td>
+                        <td>@item.Mois</td>
+                        <td>@item.DateEmission.ToShortDateString()</td>
+                        <td class="text-end fw-bold">@item.Montant.ToString("C")</td>
+                        <td>
+                            <div class="d-flex justify-content-start">
+                                <a asp-action="Details" asp-route-id="@item.IdPaie" class="btn-icon btn-icon-info me-2" title="Détails">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                <a asp-action="DownloadPdf" asp-route-id="@item.IdPaie" class="btn-icon btn-icon-danger" title="Télécharger PDF">
+                                    <i class="bi bi-file-pdf"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>

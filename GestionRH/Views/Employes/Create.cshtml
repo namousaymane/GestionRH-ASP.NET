@@ -4,49 +4,102 @@
     ViewData["Title"] = "Ajouter un employé";
 }
 
-<div class="container mt-4">
-    <h1>Ajouter un nouvel employé</h1>
-    <hr />
-    <div class="row">
-        <div class="col-md-6">
-            <form asp-action="Create">
-                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-
-                <div class="form-group mb-3">
-                    <label asp-for="Nom" class="control-label"></label>
-                    <input asp-for="Nom" class="form-control" />
-                    <span asp-validation-for="Nom" class="text-danger"></span>
+<div class="container mt-4 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
+                <div class="card-header bg-primary text-white p-4">
+                    <div class="d-flex align-items-center">
+                        <div class="bg-white bg-opacity-25 rounded-circle p-3 me-3">
+                            <i class="bi bi-person-plus-fill fs-3"></i>
+                        </div>
+                        <div>
+                            <h2 class="h4 mb-1 fw-bold">Nouvel Employé</h2>
+                            <p class="mb-0 text-white-50 small">Remplissez les informations pour créer un nouveau profil.</p>
+                        </div>
+                    </div>
                 </div>
+                <div class="card-body p-4 p-md-5 bg-light bg-opacity-10">
+                    <form asp-action="Create">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-4 rounded-3 border-0 shadow-sm" role="alert"></div>
 
-                <div class="form-group mb-3">
-                    <label asp-for="Prenom" class="control-label"></label>
-                    <input asp-for="Prenom" class="form-control" />
-                    <span asp-validation-for="Prenom" class="text-danger"></span>
-                </div>
+                        <h5 class="text-primary mb-3"><i class="bi bi-person-circle me-2"></i>Informations Personnelles</h5>
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <div class="form-floating shadow-sm rounded-3">
+                                    <input asp-for="Nom" class="form-control border-0" placeholder="Nom" />
+                                    <label asp-for="Nom">Nom</label>
+                                </div>
+                                <span asp-validation-for="Nom" class="text-danger small ms-1"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-floating shadow-sm rounded-3">
+                                    <input asp-for="Prenom" class="form-control border-0" placeholder="Prénom" />
+                                    <label asp-for="Prenom">Prénom</label>
+                                </div>
+                                <span asp-validation-for="Prenom" class="text-danger small ms-1"></span>
+                            </div>
+                            <div class="col-12">
+                                <div class="form-floating shadow-sm rounded-3">
+                                    <input asp-for="Email" class="form-control border-0" placeholder="nom@exemple.com" />
+                                    <label asp-for="Email">Adresse Email</label>
+                                </div>
+                                <span asp-validation-for="Email" class="text-danger small ms-1"></span>
+                            </div>
+                        </div>
 
-                <div class="form-group mb-3">
-                    <label asp-for="Email" class="control-label"></label>
-                    <input asp-for="Email" class="form-control" type="email" />
-                    <span asp-validation-for="Email" class="text-danger"></span>
-                </div>
+                        <h5 class="text-primary mb-3"><i class="bi bi-briefcase-fill me-2"></i>Poste & Contrat</h5>
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <div class="form-floating shadow-sm rounded-3">
+                                    <input asp-for="Poste" class="form-control border-0" placeholder="Poste" />
+                                    <label asp-for="Poste">Intitulé du Poste</label>
+                                </div>
+                                <span asp-validation-for="Poste" class="text-danger small ms-1"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-floating shadow-sm rounded-3">
+                                    <input asp-for="Salaire" class="form-control border-0" placeholder="Salaire" />
+                                    <label asp-for="Salaire">Salaire Mensuel (MAD)</label>
+                                </div>
+                                <span asp-validation-for="Salaire" class="text-danger small ms-1"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-floating shadow-sm rounded-3">
+                                    <select asp-for="ManagerId" class="form-select border-0" asp-items="ViewBag.Responsables">
+                                        <option value="">-- Sélectionner un Manager --</option>
+                                    </select>
+                                    <label asp-for="ManagerId">Manager (Optionnel)</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-floating shadow-sm rounded-3">
+                                    <select asp-for="DepartementId" class="form-select border-0" asp-items="ViewBag.Departements">
+                                        <option value="">-- Sélectionner un Département --</option>
+                                    </select>
+                                    <label asp-for="DepartementId">Département (Optionnel)</label>
+                                </div>
+                            </div>
+                        </div>
 
-                <div class="form-group mb-3">
-                    <label asp-for="Poste" class="control-label"></label>
-                    <input asp-for="Poste" class="form-control" />
-                    <span asp-validation-for="Poste" class="text-danger"></span>
-                </div>
+                        <h5 class="text-primary mb-3"><i class="bi bi-shield-lock-fill me-2"></i>Sécurité</h5>
+                        <div class="mb-4">
+                            <div class="form-floating shadow-sm rounded-3">
+                                <input name="password" id="password" class="form-control border-0" type="password" placeholder="Mot de passe" />
+                                <label for="password">Mot de passe</label>
+                            </div>
+                            <div class="form-text mt-2"><i class="bi bi-info-circle me-1"></i>Laissez vide pour utiliser le mot de passe par défaut : <strong>MotDePasse123!</strong></div>
+                        </div>
 
-                <div class="form-group mb-3">
-                    <label asp-for="Salaire" class="control-label"></label>
-                    <input asp-for="Salaire" class="form-control" type="number" step="0.01" />
-                    <span asp-validation-for="Salaire" class="text-danger"></span>
+                        <div class="d-flex justify-content-end gap-3 pt-3 border-top">
+                            <a asp-action="Index" class="btn btn-light btn-lg rounded-pill px-4 fw-bold">Annuler</a>
+                            <button type="submit" class="btn btn-primary btn-lg rounded-pill px-5 shadow fw-bold">
+                                <i class="bi bi-check-lg me-2"></i>Créer l'employé
+                            </button>
+                        </div>
+                    </form>
                 </div>
-
-                <div class="form-group mt-4">
-                    <input type="submit" value="Créer" class="btn btn-primary" />
-                    <a asp-action="Index" class="btn btn-secondary">Retour à la liste</a>
-                </div>
-            </form>
+            </div>
         </div>
     </div>
 </div>

@@ -1,0 +1,90 @@
+@model GestionRH.Models.Contrat
+
+@{
+    ViewData["Title"] = "Détails du Contrat";
+}
+
+<div class="container mt-4 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
+                <div class="card-header bg-primary text-white p-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center">
+                            <div class="bg-white bg-opacity-25 rounded-circle p-3 me-3">
+                                <i class="bi bi-file-earmark-text fs-2"></i>
+                            </div>
+                            <div>
+                                <h1 class="h4 mb-0 fw-bold">Détails du Contrat</h1>
+                                <p class="mb-0 text-white-50">@Model.TypeContrat</p>
+                            </div>
+                        </div>
+                        @if (Model.EstActif)
+                        {
+                            <span class="badge bg-success border border-success rounded-pill px-3 py-2 shadow-sm"><i class="bi bi-check-circle me-1"></i>Actif</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary border border-secondary rounded-pill px-3 py-2 shadow-sm"><i class="bi bi-slash-circle me-1"></i>Inactif</span>
+                        }
+                    </div>
+                </div>
+                
+                <div class="card-body p-4 p-md-5 bg-light bg-opacity-10">
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <h5 class="text-primary border-bottom pb-2 mb-3"><i class="bi bi-person-circle me-2"></i>Employé</h5>
+                             <dl class="row mb-0">
+                                <dt class="col-sm-4 text-muted">Nom</dt>
+                                <dd class="col-sm-8 fw-bold">@(Model.Employe?.NomComplet ?? "Inconnu")</dd>
+                                
+                                <dt class="col-sm-4 text-muted">Poste</dt>
+                                <dd class="col-sm-8 text-muted">@(Model.Employe?.Poste ?? "-")</dd>
+                            </dl>
+
+                            <h5 class="text-primary border-bottom pb-2 mb-3 mt-4"><i class="bi bi-cash-stack me-2"></i>Rémunération</h5>
+                             <dl class="row mb-0">
+                                <dt class="col-sm-4 text-muted">Salaire Brut</dt>
+                                <dd class="col-sm-8 fw-bold text-success">@Model.SalaireBrut.ToString("C")</dd>
+                             </dl>
+                        </div>
+                        <div class="col-md-6">
+                             <h5 class="text-primary border-bottom pb-2 mb-3"><i class="bi bi-calendar-range me-2"></i>Durée</h5>
+                             <dl class="row mb-0">
+                                <dt class="col-sm-4 text-muted">Date Début</dt>
+                                <dd class="col-sm-8 fw-medium">@Model.DateDebut.ToShortDateString()</dd>
+
+                                <dt class="col-sm-4 text-muted">Date Fin</dt>
+                                <dd class="col-sm-8">
+                                    @if(Model.DateFin.HasValue) {
+                                        @Model.DateFin.Value.ToShortDateString()
+                                    } else {
+                                        <span class="text-muted fst-italic">Indéterminée (CDI)</span>
+                                    }
+                                </dd>
+                            </dl>
+
+                            @if(!string.IsNullOrEmpty(Model.Description))
+                            {
+                                <h5 class="text-primary border-bottom pb-2 mb-3 mt-4"><i class="bi bi-card-text me-2"></i>Notes</h5>
+                                <p class="text-muted small bg-white p-3 rounded-3 shadow-sm">@Model.Description</p>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2 mt-5 pt-3 border-top">
+                        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning btn-lg rounded-pill px-4 shadow-sm">
+                            <i class="bi bi-pencil-square me-2"></i>Modifier
+                        </a>
+                        <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger btn-lg rounded-pill px-4 shadow-sm">
+                            <i class="bi bi-trash-fill me-2"></i>Supprimer
+                        </a>
+                        <a asp-action="Index" class="btn btn-secondary btn-lg rounded-pill px-4 shadow-sm">
+                            <i class="bi bi-arrow-left me-2"></i>Retour
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
